@@ -22,3 +22,5 @@ $layout       = new FileLayout('classificados.page');
 $data         = [];
 $data['text'] = 'Hello Joomla!';
 echo $layout->render($data);
+
+

@@ -7,20 +7,26 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
+
 -- -----------------------------------------------------
 -- Table `#__tipo_empresa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__tipo_empresa` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(255) NOT NULL,
+    `nome_plural` VARCHAR(255) NOT NULL,
     `cnae` VARCHAR(45) NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_tipo_emp_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_tipo_emp_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_tipo_emp_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_tipo_emp_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
@@ -29,52 +35,94 @@ CREATE TABLE IF NOT EXISTS `#__tipo_empresa` (
 -- Table `#__tipo_destaque`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__tipo_destaque` (
-     `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+     `id` BIGINT NOT NULL AUTO_INCREMENT,
      `nome` VARCHAR(250) NULL,
     `tipo` ENUM('PROD', 'EMPR') NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_tipo_destaque_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_tipo_destaque_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
-    PRIMARY KEY (`id`))
-    ENGINE = InnoDB;
+    CONSTRAINT `fk_tipo_destaque_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_tipo_destaque_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `#__empresa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__empresa` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-     `uuid` VARCHAR(45) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `uuid` VARCHAR(45) NOT NULL,
+    `exibir` TINYINT(1) NULL DEFAULT 1,
     `nome_fantasia` VARCHAR(250) NOT NULL,
     `razao_social` VARCHAR(250) NOT NULL,
     `cnpj` VARCHAR(14) NULL,
-    `descricao` text NULL,
-    `id_tipo_empresa` BIGINT (11) NULL,
-    `id_tipo_destaque_ativo` BIGINT (11) NULL,
+    `descricao` TEXT NULL,
+    `id_tipo_empresa` BIGINT NULL,
+    `id_tipo_destaque_ativo` BIGINT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_empresa_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_empresa_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_empresa_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_empresa_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
-    INDEX `idx_empresa_nome` (`nome_fantasia` ASC) VISIBLE,
-    INDEX `fk_empresa_tipo_empresa_idx` (`id_tipo_empresa` ASC) VISIBLE,
+    INDEX `idx_empresa_busca1` (`nome_fantasia` ASC,`razao_social` ASC, `status` ASC, `exibir` ASC ) VISIBLE,
+    INDEX `idx_empresa_busca2` (`nome_fantasia` ASC,`razao_social` ASC, `status` ASC, `exibir` ASC, `id_tipo_empresa` ASC) VISIBLE,
+    INDEX `idx_empresa_busca3` (`id_tipo_empresa` ASC, `status` ASC, `exibir` ASC) VISIBLE,
     UNIQUE INDEX `uuid_empresa` (`uuid` ASC) VISIBLE,
     INDEX `fk_empresa_tipo_destque_ativo_idx` (`id_tipo_destaque_ativo` ASC) VISIBLE,
-    CONSTRAINT `fk_empresa_tipo_empresa`
-    FOREIGN KEY (`id_tipo_empresa`)
-    REFERENCES `#__tipo_empresa` (`id`)
+    CONSTRAINT `fk_empresa_tipo_empresa` FOREIGN KEY (`id_tipo_empresa`) REFERENCES `#__tipo_empresa` (`id`),
+    CONSTRAINT `fk_empresa_tipo_destque_ativo` FOREIGN KEY (`id_tipo_destaque_ativo`) REFERENCES `#__tipo_destaque`(`id`)  
+) ENGINE = InnoDB;
+
+
+
+
+
+-- -----------------------------------------------------
+-- Table `#__foto_empersa`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `#__foto_empresa` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `uuid` VARCHAR(45) NOT NULL,
+    `nome_arquivo` VARCHAR(250) NOT NULL,
+    `descricao` VARCHAR(250) NOT NULL,
+    `mimetype` VARCHAR(45) NOT NULL,
+    `extencao` VARCHAR(4) NOT NULL,
+    `id_empresa` BIGINT NOT NULL,
+    `ordem`   INT NULL DEFAULT 1,
+    `status`            enum('A','R','B') DEFAULT 'A',
+    `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
+    `id_user_alterador` INT,
+    `data_criado`      DATETIME NOT NULL,
+    `data_alterado`    DATETIME,
+    CONSTRAINT `fk_foto_empresa_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_foto_empresa_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `uuid_foto_empresa` (`uuid` ASC) VISIBLE,
+    INDEX `fk_foto_empresa_empresa_idx` (`id_empresa` ASC) VISIBLE,
+    CONSTRAINT `fk_foto_empresa_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa` (`id`)
     
-    ,
-    CONSTRAINT `fk_empresa_tipo_destque_ativo` FOREIGN KEY (`id_tipo_destaque_ativo`) REFERENCES `#__tipo_destaque`
-(`id`)  
- ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
+
+
+
 
 
 -- -----------------------------------------------------
@@ -86,13 +134,21 @@ CREATE TABLE IF NOT EXISTS `#__pais` (
     `sigla_moeda` VARCHAR(5) NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_pais_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_pais_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
-    PRIMARY KEY (`sigla`))
-    ENGINE = InnoDB;
+    CONSTRAINT `fk_pais_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_pais_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    PRIMARY KEY (`sigla`)
+) ENGINE = InnoDB;
+
+
+
+
 
 
 -- -----------------------------------------------------
@@ -104,121 +160,123 @@ CREATE TABLE IF NOT EXISTS `#__uf` (
     `sigla_pais` VARCHAR(45) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_uf_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_uf_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_uf_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_uf_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`uf`),
     INDEX `uf_pais_idx` (`sigla_pais` ASC) VISIBLE,
-    CONSTRAINT `fk_uf_pais`
-    FOREIGN KEY (`sigla_pais`)
-    REFERENCES `#__pais` (`sigla`)
-    
-    )
-    ENGINE = InnoDB;
+    CONSTRAINT `fk_uf_pais` FOREIGN KEY (`sigla_pais`) REFERENCES `#__pais` (`sigla`)
+) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `#__cidade`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__cidade` (
-                                           `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-                                           `nome` VARCHAR(255) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `nome` VARCHAR(255) NOT NULL,
     `uf` VARCHAR(3) NOT NULL,
     `ddd` VARCHAR(3) NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_cidade_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_cidade_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_cidade_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_cidade_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
     INDEX `cidade_uf_idx` (`uf` ASC) VISIBLE,
-    CONSTRAINT `fk_cidade_uf`
-    FOREIGN KEY (`uf`)
-    REFERENCES `#__uf` (`uf`)
+    CONSTRAINT `fk_cidade_uf` FOREIGN KEY (`uf`) REFERENCES `#__uf` (`uf`)
     
-    )
-    ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `#__telefone_empresa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__telefone_empresa` (
-        `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-        `id_empresa` BIGINT (11) NOT NULL,
-        `id_cidade` BIGINT (11) NOT NULL,
-        `tipo` ENUM('CASA', 'CELU', 'RECA', 'COME', 'OUTR') NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `id_empresa` BIGINT NOT NULL,
+    `id_cidade` BIGINT NOT NULL,
+    `tipo` ENUM('CASA', 'CELU', 'RECA', 'COME', 'OUTR') NOT NULL,
     `ddd` VARCHAR(3) NULL,
     `telefone` VARCHAR(45) NOT NULL,
     `exibir` TINYINT(1) NULL DEFAULT 1,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_telefone_emp_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_telefone_emp_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_telefone_emp_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_telefone_emp_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
     INDEX `telefone_emp_empresa_idx` (`id_empresa` ASC) VISIBLE,
     INDEX `telefone_emp_cidade_idx` (`id_cidade` ASC) VISIBLE,
-    CONSTRAINT `fk_telefone_emp_empresa`
-    FOREIGN KEY (`id_empresa`)
-    REFERENCES `#__empresa` (`id`)
-    
-    ,
-    CONSTRAINT `fk_telefone_emp_cidade`
-    FOREIGN KEY (`id_cidade`)
-    REFERENCES `#__cidade` (`id`)
-    
-    )
-    ENGINE = InnoDB;
+    CONSTRAINT `fk_telefone_emp_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa` (`id`) ,
+    CONSTRAINT `fk_telefone_emp_cidade` FOREIGN KEY (`id_cidade`) REFERENCES `#__cidade` (`id`)
+) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `#__email_empresa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__email_empresa` (
-     `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-     `id_empresa` BIGINT (11) NOT NULL,
-     `email` VARCHAR(255) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `id_empresa` BIGINT NOT NULL,
+    `email` VARCHAR(255) NOT NULL,
     `exibir` TINYINT(1) NULL DEFAULT 1,
     `contato` TINYINT(1) NULL DEFAULT 1,
     `validado` DATETIME NULL,
-
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_email_emp_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_email_emp_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_email_emp_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_email_emp_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
     INDEX `email_emp_empresa_idx` (`id_empresa` ASC) VISIBLE,
     CONSTRAINT `fk_email_emp_empresa`
     FOREIGN KEY (`id_empresa`)
     REFERENCES `#__empresa` (`id`)
-    
-    )
-    ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `#__logradouros`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__logradouros` (
-                                                `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-                                                `nome` VARCHAR(255) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `nome` VARCHAR(255) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_logradouro_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_logradouro_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_logradouro_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_logradouro_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`))
     ENGINE = InnoDB;
 
@@ -227,18 +285,22 @@ CREATE TABLE IF NOT EXISTS `#__logradouros` (
 -- Table `#__endereco_empresa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__endereco_empresa` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-    `id_empresa` BIGINT (11) NOT NULL,
-    `id_cidade` BIGINT (11) NOT NULL,
-    `id_logradouro` BIGINT (11) NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `id_empresa` BIGINT NOT NULL,
+    `id_cidade` BIGINT NOT NULL,
+    `id_logradouro` BIGINT NULL,
     `endereco` VARCHAR(250) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_endereco_emp_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_endereco_emp_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_endereco_emp_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_endereco_emp_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     `numero` VARCHAR(20) NULL,
     `complemento` VARCHAR(250) NULL,
     `bairro` VARCHAR(250) NULL,
@@ -248,58 +310,55 @@ CREATE TABLE IF NOT EXISTS `#__endereco_empresa` (
     INDEX `fk_endereco_emp_empresa_idx` (`id_empresa` ASC) VISIBLE,
     INDEX `fk_endereco_emp_cidade_idx` (`id_cidade` ASC) VISIBLE,
     INDEX `fk_endereco_emp_logradouro_idx` (`id_logradouro` ASC) VISIBLE,
-    CONSTRAINT `fk_endereco_emp_empresa`
-    FOREIGN KEY (`id_empresa`)
-    REFERENCES `#__empresa` (`id`)
-    
-    ,
-    CONSTRAINT `fk_endereco_emp_cidade`
-    FOREIGN KEY (`id_cidade`)
-    REFERENCES `#__cidade` (`id`)
-    
-    ,
-    CONSTRAINT `fk_endereco_emp_logradouro`
-    FOREIGN KEY (`id_logradouro`)
-    REFERENCES `#__logradouros` (`id`)
-    
-    )
-    ENGINE = InnoDB;
+    CONSTRAINT `fk_endereco_emp_empresa` FOREIGN KEY (`id_empresa`) EFERENCES `#__empresa` (`id`) ,
+    CONSTRAINT `fk_endereco_emp_cidade` FOREIGN KEY (`id_cidade`) REFERENCES `#__cidade` (`id`) ,
+    CONSTRAINT `fk_endereco_emp_logradouro` FOREIGN KEY (`id_logradouro`) REFERENCES `#__logradouros` (`id`)
+) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `#__tipo_produto`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__tipo_produto` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(250) NOT NULL,
+    `nome_plural` VARCHAR(255) NOT NULL
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_tipo_produto_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_tipo_produto_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
-    PRIMARY KEY (`id`))
-    ENGINE = InnoDB;
+    CONSTRAINT `fk_tipo_produto_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_tipo_produto_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `#__caracteristica`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__caracteristica` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(250) NOT NULL,
     `tem_valor` TINYINT(1) DEFAULT 0,
-    `tipo_valor` ENUM('TEXT','NUMERIC','CHECKED','OPTION','DINHEIRO','M²','CENTIMETROS','METROS','ALTURA','DINHEIRO'),
-    `limit_chars_valor` BIGINT (11) NULL,
+    `tipo_valor` ENUM('TEXT','NUMERIC','CHECKED','OPTION','DINHEIRO','M²','CENTIMETROS','METROS','ALTURA'),
+    `limit_chars_valor` BIGINT NULL,
     `pattern` VARCHAR(250) NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_caract_prod_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_caract_prod_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_caracteristicas_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_caracteristicas_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
@@ -307,43 +366,48 @@ CREATE TABLE IF NOT EXISTS `#__caracteristica` (
 -- Table `#__caracteristica_valores_possiveis`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__caracteristica_valores_possiveis` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `valor` VARCHAR(250) NOT NULL,
-    `id_caracteristica` BIGINT (11) NOT NULL,
+    `id_caracteristica` BIGINT NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_caract_prod_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_caract_prod_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_caract_val_pssi_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_caract_val_pssi_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
-    CONSTRAINT fk_vlr_caracteristica FOREIGN KEY (`id_caracteristica`) REFERENCES `#__caracteristica`(`id`),
+    CONSTRAINT `fk_vlr_caracteristica` FOREIGN KEY (`id_caracteristica`) REFERENCES `#__caracteristica`(`id`)
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `#__caracteristicas_produtos`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__caracteristicas_produtos` (
-    `id_produto` BIGINT (11) NOT NULL,
-    `id_caracteristica` BIGINT (11) NOT NULL,
-    `id_valor_possivel` BIGINT (11) NULL,
+    `id_produto` BIGINT NOT NULL,
+    `id_caracteristica` BIGINT NOT NULL,
+    `id_valor_possivel` BIGINT NULL,
     `valor` varchar(255) NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-
-
-    CONSTRAINT fk_caract_prod_carac FOREIGN KEY (`id_caracteristica`) REFERENCES `#__caracteristica`(`id`),
-    CONSTRAINT fk_caract_prod_produto FOREIGN KEY (`id_produto`) REFERENCES `#__produto`(`id`),
-    CONSTRAINT fk_caract_prod_valor FOREIGN KEY (`id_valor_possivel`) REFERENCES `#__caracteristica_valores_possiveis`(`id`),
-
-    CONSTRAINT fk_caract_prod_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_caract_prod_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
-    PRIMARY KEY (`id_produto`,`id_caracteristica`))
-    ENGINE = InnoDB;
+    CONSTRAINT `fk_caract_prod_carac` FOREIGN KEY (`id_caracteristica`) REFERENCES `#__caracteristica`(`id`),
+    CONSTRAINT `fk_caract_prod_produto` FOREIGN KEY (`id_produto`) REFERENCES `#__produto`(`id`),
+    CONSTRAINT `fk_caract_prod_valor` FOREIGN KEY (`id_valor_possivel`) REFERENCES `#__caracteristica_valores_possiveis`(`id`),
+    CONSTRAINT `fk_caract_prod_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_caract_prod_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    PRIMARY KEY (`id_produto`,`id_caracteristica`)
+) ENGINE = InnoDB;
 
 
 
@@ -351,47 +415,55 @@ CREATE TABLE IF NOT EXISTS `#__caracteristicas_produtos` (
 -- Table `#__tipo_medida`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__tipo_medida` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(250) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_tipo_medida_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_tipo_medida_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_tipo_medida_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_tipo_medida_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `nome_UNIQUE` (`nome` ASC) VISIBLE)
-    ENGINE = InnoDB;
+    UNIQUE INDEX `nome_UNIQUE` (`nome` ASC) VISIBLE
+) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `#__produto`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__produto` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `uuid` VARCHAR(45) NOT NULL,
     `nome` VARCHAR(250) NOT NULL,
-    `descricao` text NULL,
-    `id_empresa` BIGINT (11) NOT NULL,
-    `id_tipo_produto` BIGINT (11) NOT NULL,
-    `id_medida` BIGINT (11) NOT NULL,
+    `descricao` TEXT NULL,
+    `id_empresa` BIGINT NOT NULL,
+    `id_tipo_produto` BIGINT NOT NULL,
+    `id_medida` BIGINT NOT NULL,
     `quantidade_medida` DECIMAL(12,2) NULL,
     `altura` DECIMAL(10,5) NULL,
     `largura` DECIMAL(10,5) NULL,
     `profundidade` DECIMAL(10,5) NULL,
     `peso` DECIMAL(10,5) NULL,
-    `id_tipo_destaque_ativo` BIGINT (11) NULL,
+    `id_tipo_destaque_ativo` BIGINT NULL,
     `exibir` TINYINT(1) NULL,
     `exibir_fim` DATETIME NULL,
     `exibir_inicio` DATETIME NOT NULL DEFAULT NOW(),
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_produto_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_produto_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_produto_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_produto_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
     UNIQUE INDEX `uuid_produto` (`uuid` ASC) VISIBLE,
     INDEX `fk_produto_empresa_idx` (`id_empresa` ASC) VISIBLE,
@@ -409,20 +481,25 @@ CREATE TABLE IF NOT EXISTS `#__produto` (
 -- Table `#__foto_produto`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__foto_produto` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `uuid` VARCHAR(45) NOT NULL,
     `nome_arquivo` VARCHAR(250) NOT NULL,
     `descricao` VARCHAR(250) NOT NULL,
     `mimetype` VARCHAR(45) NOT NULL,
     `extencao` VARCHAR(4) NOT NULL,
-    `id_produto` BIGINT (11) NOT NULL,
+    `id_produto` BIGINT NOT NULL,
+    `ordem`   INT NULL DEFAULT 1,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_foto_produto_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_foto_produto_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_foto_produto_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_foto_produto_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
     UNIQUE INDEX `uuid_foto_produto` (`uuid` ASC) VISIBLE,
     INDEX `fk_foto_produto_produto_idx` (`id_produto` ASC) VISIBLE,
@@ -437,18 +514,22 @@ CREATE TABLE IF NOT EXISTS `#__foto_produto` (
 -- Table `#__tabela_preco`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__tabela_preco` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(250) NOT NULL,
     `inicio` DATETIME NOT NULL,
     `fim` DATETIME NULL,
     `exibir` TINYINT(1) NULL DEFAULT 1,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_tabela_preco_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_tabela_preco_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_tabela_preco_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_tabela_preco_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`))
     ENGINE = InnoDB;
 
@@ -457,16 +538,20 @@ CREATE TABLE IF NOT EXISTS `#__tabela_preco` (
 -- Table `#__preco_produto`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__preco_produto` (
-    `id_produto` BIGINT (11) NOT NULL,
-    `id_tabela_preco` BIGINT (11) NOT NULL,
+    `id_produto` BIGINT NOT NULL,
+    `id_tabela_preco` BIGINT NOT NULL,
     `preco` DECIMAL(10,2) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_preco_produto_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_preco_produto_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_preco_produto_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_preco_produto_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id_produto`, `id_tabela_preco`),
     INDEX `fk_preco_produto_tabela_preco_idx` (`id_tabela_preco` ASC) VISIBLE,
     CONSTRAINT `fk_preco_produto_produto` FOREIGN KEY (`id_produto`) REFERENCES `#__produto` (`id`) ,
@@ -479,15 +564,19 @@ CREATE TABLE IF NOT EXISTS `#__preco_produto` (
 -- Table `#__forma_pagamento`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__forma_pagamento` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(250) NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_forma_pagamento_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_forma_pagamento_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_forma_pagamento_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_forma_pagamento_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
@@ -496,19 +585,21 @@ CREATE TABLE IF NOT EXISTS `#__forma_pagamento` (
 -- Table `#__historico_destaque`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__historico_destaque` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `uuid` VARCHAR(45) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_historico_des_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_historico_des_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
-    `id_tipo_destaque` BIGINT (11) NOT NULL,
-    `id_empresa` BIGINT (11) NOT NULL,
-    `id_forma_pagamento` BIGINT (11) NOT NULL,
-    `id_produto` BIGINT (11) NULL,
+    `id_tipo_destaque` BIGINT NOT NULL,
+    `id_empresa` BIGINT NOT NULL,
+    `id_forma_pagamento` BIGINT NOT NULL,
+    `id_produto` BIGINT NULL,
     `valor_pago` DECIMAL(10,2) NOT NULL,
     `data_contratado` DATETIME NOT NULL,
     `data_inicio` DATETIME NOT NULL,
@@ -516,15 +607,15 @@ CREATE TABLE IF NOT EXISTS `#__historico_destaque` (
     `identificador` VARCHAR(250) NULL,
     `comprovante` VARCHAR(250) NULL,
     PRIMARY KEY (`id`),
+    CONSTRAINT `fk_historico_des_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_historico_des_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     INDEX `fk_historico_destaque_empresa_idx` (`id_empresa` ASC) VISIBLE,
     INDEX `fk_historico_destaque_tipo_destaque_idx` (`id_tipo_destaque` ASC) VISIBLE,
     INDEX `fk_historico_destaque_forma_pagamento_idx` (`id_forma_pagamento` ASC) VISIBLE,
     INDEX `fk_historico_destaque_produto_idx` (`id_produto` ASC) VISIBLE,
     CONSTRAINT `fk_historico_destaque_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa` (`id`) ,
-    CONSTRAINT `fk_historico_destaque_tipo_destaque` FOREIGN KEY (`id_tipo_destaque`) REFERENCES `#__tipo_destaque`
-(`id`) ,
-    CONSTRAINT `fk_historico_destaque_forma_pagamento` FOREIGN KEY (`id_forma_pagamento`) REFERENCES
-    `#__forma_pagamento` (`id`) ,
+    CONSTRAINT `fk_historico_destaque_tipo_destaque` FOREIGN KEY (`id_tipo_destaque`) REFERENCES `#__tipo_destaque`(`id`) ,
+    CONSTRAINT `fk_historico_destaque_forma_pagamento` FOREIGN KEY (`id_forma_pagamento`) REFERENCES `#__forma_pagamento` (`id`) ,
     CONSTRAINT `fk_historico_destaque_produto` FOREIGN KEY (`id_produto`) REFERENCES `#__tipo_produto` (`id`)
 ) ENGINE = InnoDB;
 
@@ -533,25 +624,28 @@ CREATE TABLE IF NOT EXISTS `#__historico_destaque` (
 -- Table `#__pessoa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__pessoa` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(255) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `sobre_nome` VARCHAR(45) NOT NULL,
     `genero` ENUM('M', 'F') NULL,
     `data_nascimento` DATE NULL,
     `cpf` VARCHAR(14) NULL,
-    `id_usuario` BIGINT (11) NOT NULL,
-    `id_empresa` BIGINT (11) NOT NULL,
+    `id_usuario` BIGINT NOT NULL,
+    `id_empresa` BIGINT NOT NULL,
     PRIMARY KEY (`id`, `nome`, `sobre_nome`),
     UNIQUE INDEX `id_usuario_UNIQUE` (`id_usuario` ASC) VISIBLE,
     INDEX `fk_pessoa_empresa_idx` (`id_empresa` ASC) VISIBLE,
-    CONSTRAINT fk_pessoa_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_pessoa_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_pessoa_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_pessoa_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_pessoa_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa` (`id`)
     
 ) ENGINE = InnoDB;
@@ -561,24 +655,27 @@ CREATE TABLE IF NOT EXISTS `#__pessoa` (
 -- Table `#__telefone_pessoa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__telefone_pessoa` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-    `id_pessoa` BIGINT (11) NOT NULL,
-    `id_cidade` BIGINT (11) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `id_pessoa` BIGINT NOT NULL,
+    `id_cidade` BIGINT NOT NULL,
     `ddd` VARCHAR(3) NULL,
     `telefone` VARCHAR(45) NOT NULL,
     `tipo` ENUM('CASA', 'CELU', 'RECA', 'COME', 'OUTR') NOT NULL,
     `exibir` TINYINT(1) NULL DEFAULT 1,
     `contato` TINYINT(1) NULL DEFAULT 1,
     `validado` DATETIME NULL,
-
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
     PRIMARY KEY (`id`),
-    CONSTRAINT fk_telefone_pessoa_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_telefone_pessoa_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_telefone_pessoa_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_telefone_pessoa_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_telefone_pessoa_pessoa` FOREIGN KEY (`id_pessoa`) REFERENCES `#__pessoa` (`id`) ,
     CONSTRAINT `fk_telefone_pessoa_cidade` FOREIGN KEY (`id_cidade`) REFERENCES `#__cidade` (`id`)
     
@@ -589,59 +686,52 @@ CREATE TABLE IF NOT EXISTS `#__telefone_pessoa` (
 -- Table `#__email_pessoa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__email_pessoa` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-    `id_pessoa` BIGINT (11) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `id_pessoa` BIGINT NOT NULL,
     `email` VARCHAR(255) NOT NULL,
-
     `exibir` TINYINT(1) NULL DEFAULT 1,
     `contato` TINYINT(1) NULL DEFAULT 1,
     `validado` DATETIME NULL,
-
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-    CONSTRAINT fk_email_pessoa_user_cri FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
-    CONSTRAINT fk_email_pessoa_user_alt FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
-
     PRIMARY KEY (`id`),
+    CONSTRAINT `fk_email_pessoa_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_email_pessoa_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     INDEX `fk_email_emp_pessoa_idx` (`id_pessoa` ASC) VISIBLE,
     CONSTRAINT `fk_email_emp_pessoa` FOREIGN KEY (`id_pessoa`) REFERENCES `#__pessoa` (`id`)
     
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `#__contato` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
-    `id_email_pessoa_destino` BIGINT (11) NULL,
-    `id_email_empresa_destino` BIGINT (11)  NULL,
-
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `id_email_pessoa_destino` BIGINT NULL,
+    `id_email_empresa_destino` BIGINT  NULL,
     `id_users_origem` INT NULL,
-
-
-    `id_mensagem_anterior` BIGINT (11) NULL,
-
-
-
-    `mensagem` Text NOT NULL,
+    `id_mensagem_anterior` BIGINT NULL,
+    `mensagem` TEXT NOT NULL,
     `titulo` VARCHAR(255) NOT NULL,
-    `id_produto_origem` BIGINT (11) NULL,
-
-
-
+    `id_produto_origem` BIGINT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
-
-
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_contato_user_origem` FOREIGN KEY (`id_users_origem`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_contato_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_contato_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_contato_produto` FOREIGN KEY (`id_produto_origem`) REFERENCES `#__produto` (`id`),
-
     CONSTRAINT `fk_contato_email_pessoa` FOREIGN KEY (`id_email_pessoa_destino`) REFERENCES `#__email_pessoa` (`id`),
     CONSTRAINT `fk_contato_email_empresa` FOREIGN KEY (`id_email_empresa_destino`) REFERENCES `#__email_empresa` (`id`)
 ) ENGINE = InnoDB;
@@ -649,13 +739,14 @@ CREATE TABLE IF NOT EXISTS `#__contato` (
 
 
 CREATE TABLE IF NOT EXISTS `#__carrinho` (
-    `id` BIGINT (11) NOT NULL AUTO_INCREMENT,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `id_users_origem` INT NULL,
-
-
-
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
@@ -667,19 +758,21 @@ CREATE TABLE IF NOT EXISTS `#__carrinho` (
 
 
 CREATE TABLE IF NOT EXISTS `#__carrinho_produto` (
-    `id_carrinho`  BIGINT (11)  NOT NULL,
-    `id_produto`  BIGINT (11)  NOT NULL,
-    `id_tabela`  BIGINT (11)  NULL,
+    `id_carrinho`  BIGINT  NOT NULL,
+    `id_produto`  BIGINT  NOT NULL,
+    `id_tabela`  BIGINT  NULL,
     `valor`  DECIMAL(12,2)  NULL,
     `quantidade` INT  DEFAULT 1,
-
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
     `id_user_alterador` INT,
     `data_criado`      DATETIME NOT NULL,
     `data_alterado`    DATETIME,
     PRIMARY KEY (`id_carrinho`,`id_produto` ),
-
     CONSTRAINT `fk_carrinho_prod_id_tabela` FOREIGN KEY (`id_tabela`) REFERENCES `#__tabela_preco`(`id`),
     CONSTRAINT `fk_carrinho_prod_produto` FOREIGN KEY (`id_produto`) REFERENCES `#__produto`(`id`),
     CONSTRAINT `fk_carrinho_prod_carrinho` FOREIGN KEY (`id_carrinho`) REFERENCES `#__carrinho`(`id`),
@@ -687,6 +780,98 @@ CREATE TABLE IF NOT EXISTS `#__carrinho_produto` (
     CONSTRAINT `fk_carrinho_prod_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`)
 ) ENGINE = InnoDB;
 
+
+
+
+CREATE TABLE IF NOT EXISTS `#__url_busca` (
+    `id`  BIGINT  NOT NULL AUTO_INCREMENT,
+    `url`  VARCHAR(250)  UNIQUE NULL ,
+    `quantidade`   INT  DEFAULT 1, 
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `data_criado`      DATETIME NOT NULL,
+    PRIMARY KEY (`id` )
+
+) ENGINE = InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS `#__covites` (
+    `uuid` VARCHAR(40) NOT NULL DEFAULT UUID(),
+    `email`  VARCHAR(250)  NOT NULL ,
+    `data_aceite`    DATETIME,
+    `data_negado`    DATETIME,
+    `id_empresa`    BIGINT NOT NULL,
+	`id_pessoa_cadastrada`    BIGINT NULL,
+    `status`            enum('A','R','B') DEFAULT 'A',
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
+    `id_user_alterador` INT,
+    `id_user_criador` INT NOT NULL,
+    `data_criado`      DATETIME NOT NULL,
+    `data_alterado`    DATETIME,
+    CONSTRAINT `fk_convite_pessoa` FOREIGN KEY (`id_pessoa_cadastrada`) REFERENCES `#__pessoa`(`id`),
+    CONSTRAINT `fk_convite_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa`(`id`),
+    CONSTRAINT `fk_convite_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_convite_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+ 	UNIQUE(`uuid`, `email`),
+    PRIMARY KEY (`uuid` )
+
+) ENGINE = InnoDB;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT id INTO @IDUSUARIO FROM teste_users limit 1;
+SELECT SUBSTRING_INDEX(USER(), '@', -1) INTO @IPACESSO;
+
+
+
+INSERT INTO `#__pais` (`sigla`,`nome`,`sigla_moeda`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
+('BRA', 'Brasil', 'BRL', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO,NOW());
+
+
+INSERT INTO `#__uf` ( `nome`, `uf`,`sigla_pais`,`status`,`id_user_criador` ,`ip_criador`,`ip_criador_proxiado`, `data_criado`) VALUES 
+('Acre','AC','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Alagoas', 'AL','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Amapá', 'AP','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Amazonas', 'AM','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Bahia', 'BA','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Ceará', 'CE','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Distrito Federal', 'DF','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Espírito Santo', 'ES','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Goiás', 'GO','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Maranhão', 'MA','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Mato Grosso', 'MT','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Mato Grosso do Sul', 'MS','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Minas Gerais', 'MG','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Pará', 'PA','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Paraíba', 'PB','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Paraná', 'PR','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Pernambuco', 'PE','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Piauí', 'PI','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Roraima', 'RR','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Rondônia', 'RO','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Rio de Janeiro', 'RJ','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Rio Grande do Norte', 'RN','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Rio Grande do Sul', 'RS','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Santa Catarina', 'SC','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('São Paulo', 'SP','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Sergipe', 'SE','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW()),
+('Tocantins', 'TO','BRA', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW());
 
 
 

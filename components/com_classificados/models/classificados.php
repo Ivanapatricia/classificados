@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 /**
- * Classificados model.
+ * Classifi cados model.
  *
  * @package   classificados
  * @since     1.0.0

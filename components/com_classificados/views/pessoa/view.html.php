@@ -18,7 +18,7 @@ use Joomla\CMS\MVC\View\HtmlView;
  * @package   classificados
  * @since     1.0.0
  */
-class ClassificadosViewBusca extends HtmlView
+class ClassificadosViewPessoa extends HtmlView
 {
 
 	public function display($tpl = null)
@@ -34,7 +34,6 @@ class ClassificadosViewBusca extends HtmlView
 	 */
 	protected function metadados()
 	{
-
         JHtml::_('bootstrap.framework');
         JHtml::_('jquery.framework');
         JHtml::_('jquery.ui');
@@ -46,20 +45,46 @@ class ClassificadosViewBusca extends HtmlView
 		$busca = $input->get('nome', null, 'string');
 		$tipoEmpresa = $input->get('tipoEmpresa', null, 'string');
 		$tipoProduto = $input->get('tipoProduto', null, 'string');
+		$empresaUUID = $input->get('empresa', null, 'string');
+		$descricao = null;
+		$keywords = null;
+		$titulo = null;
 
+		$tela = $input->get('layout', 'default', 'string' );
+
+
+		//Carregando a tela de empresa
+		switch($tela ){
+			case 'default': //Cadastro & edição dados básicos
+				$titulo = $document->getTitle()  . ' : ' . $descricao;
+				$descricao = JText::_('COM_CLASSIFICADOS_BUSCA_POR') . ($busca != null ? ' - ' . $busca : '' ) 
+					. ($tipoEmpresa != null ? ' [ ' . ucfirst($tipoEmpresa)  . ' ]': '' ) 
+					. ($tipoProduto != null ? ' [ ' . ucfirst($tipoProduto)   . ' ]': '' ) ;
+				
+				break;
+			case 'imagens': //Cadastro de imagens do estabelecimento
+				break;
+			case 'telefones': //Cadastro de telefones de contato
+				break;
+			case 'emails': //Cadastro de e-mail de contatos
+				break;
+			case 'convites': //Convidar outros usuários
+
+				
+				break;
+			case 'empresa': //Consulta
+
+
+
+				
+		}
 	
 
 		$document->setMetadata('APPLICATION-NAME','Classidicados');
-		$descricao = JText::_('COM_CLASSIFICADOS_BUSCA_POR') . ($busca != null ? ' - ' . $busca : '' ) 
-		. ($tipoEmpresa != null ? ' [ ' . ucfirst($tipoEmpresa)  . ' ]': '' ) 
-		. ($tipoProduto != null ? ' [ ' . ucfirst($tipoProduto)   . ' ]': '' ) ;
 
 		$pathway->addItem($descricao,'');
-		$document->setTitle($document->getTitle()  . ' : ' .$descricao );
+		$document->setTitle($titulo);
 		$document->setDescription($descricao);
-		$document->setMetadata('Keywords', ' busca' 
-			. ($busca != null ? ', ' . $busca : '' ) 
-			. ($tipoEmpresa != null ? ', ' . $tipoEmpresa : '' ) 
-			. ($tipoProduto != null ? ', ' . $tipoProduto : '' ) );
+		$document->setMetadata('Keywords', $keywords);
 	}
 }

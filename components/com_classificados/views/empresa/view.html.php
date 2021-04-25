@@ -34,13 +34,57 @@ class ClassificadosViewEmpresa extends HtmlView
 	 */
 	protected function metadados()
 	{
+        JHtml::_('bootstrap.framework');
+        JHtml::_('jquery.framework');
+        JHtml::_('jquery.ui');
+
+		$app = JFactory::getApplication();
 		$document = JFactory::getDocument();
-		$pathway = JFactory::getApplication()->getPathway();
-		$document->setMetadata('APPLICATION-NAME','Social Blade');
-		$descricao = 'Cadastro '.$document->getTitle();
+		$pathway = $app->getPathway();
+		$input = $app->input;
+		$busca = $input->get('nome', null, 'string');
+		$tipoEmpresa = $input->get('tipoEmpresa', null, 'string');
+		$tipoProduto = $input->get('tipoProduto', null, 'string');
+		$empresaUUID = $input->get('empresa', null, 'string');
+		$descricao = null;
+		$keywords = null;
+		$titulo = null;
+
+		$tela = $input->get('layout', 'default', 'string' );
+
+
+		//Carregando a tela de empresa
+		switch($tela ){
+			case 'default': //Cadastro & edição dados básicos
+				$titulo = $document->getTitle()  . ' : ' . $descricao;
+				$descricao = JText::_('COM_CLASSIFICADOS_BUSCA_POR') . ($busca != null ? ' - ' . $busca : '' ) 
+					. ($tipoEmpresa != null ? ' [ ' . ucfirst($tipoEmpresa)  . ' ]': '' ) 
+					. ($tipoProduto != null ? ' [ ' . ucfirst($tipoProduto)   . ' ]': '' ) ;
+				
+				break;
+			case 'imagens': //Cadastro de imagens do estabelecimento
+				break;
+			case 'telefones': //Cadastro de telefones de contato
+				break;
+			case 'emails': //Cadastro de e-mail de contatos
+				break;
+			case 'convites': //Convidar outros usuários
+
+				
+				break;
+			case 'empresa': //Consulta
+
+
+
+				
+		}
+	
+
+		$document->setMetadata('APPLICATION-NAME','Classidicados');
+
 		$pathway->addItem($descricao,'');
-		$document->setTitle($descricao );
+		$document->setTitle($titulo);
 		$document->setDescription($descricao);
-		$document->setMetadata('Keywords', 'cadastro');
+		$document->setMetadata('Keywords', $keywords);
 	}
 }

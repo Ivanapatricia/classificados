@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_CLASSIFICADOS_BUSCA_MENU">
+		<message>
+			<![CDATA[COM_CLASSIFICADOS_BUSCA_MENU]]>
+		</message>
+	</layout>
+    <fields name="params">
+    <!--  Basic options.  -->
+        <fieldset name="basic" label="COM_CLASSIFICADOS_BUSCA_MENU_OPCOES">
+            <field
+                name="ste"
+                type="sql"
+                key_field="value"
+                value_field="text"
+                label="COM_CLASSIFICADOS_BUSCA_FILTRO_EMPRESA"
+                header="COM_CLASSIFICADOS_N_SELECIONADO"
+                query="SELECT id AS value, nome AS text FROM #__tipo_empresa WHERE status = 'A' ORDER BY nome" />
+           <field
+                name="stp"
+                type="sql"
+                key_field="value"
+                value_field="text"
+                header="COM_CLASSIFICADOS_N_SELECIONADO"
+                label="COM_CLASSIFICADOS_BUSCA_FILTRO_PRODUTO"
+                query="SELECT id AS value, nome AS text FROM #__tipo_produto WHERE status = 'A' ORDER BY nome" />
+
+        </fieldset>
+    </fields>
+</metadata>
+
