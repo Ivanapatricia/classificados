@@ -20,4 +20,46 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
  */
 class ClassificadosModelClassificados extends BaseDatabaseModel
 {
+
+
+    	/**
+	 * Verifica se o usuário está logado.
+	 *
+	 * @param $task Tarefa que deve ser acionada do componente após o login.
+	 * @return bool Retorna False se não estiver logado e true caso esteja.
+	 * @throws Exception Não prvisto.
+	 */
+	public function isLogado($task){
+		$user = JFactory::getUser();
+		$app = Factory::getApplication();
+        $itemid = $app->input->get('Itemid', '', 'string');
+		$urlRetorno = urlencode(base64_encode( 'index.php?option=com_classificados&task=' . $task . '&Itemid=' . $itemid));
+		$login =  JRoute::_ ( 'index.php?option=com_users&view=login&Itemid=' . $itemid . '&return=' . $urlRetorno, false );
+		if ($user == null || $user->id == null || $user->id == 0) {
+			$app->redirect ($login, "" );
+			return false;
+		}
+		return true;
+	}
+
+	public function gerarToken($token){
+		$retorno = ''; 
+		switch(rand ( 1 , 4 )){
+			case 1:
+				$retorno = "<input type='hidden' value='$token' name='1' />";
+				break;
+			case 2:
+				$retorno = "<input value='$token' type='hidden' name='1' />";
+				break;
+			case 3:
+				$retorno = "<input name='1' value='$token' type='hidden' />";
+				break;
+			default:
+				$retorno = "<input type='hidden'  name='1'  value='$token' />";
+				break;
+		}
+
+		return $retorno;
+	}
+
 }

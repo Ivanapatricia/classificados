@@ -11,7 +11,14 @@
 				maxlength="100" minlength="3" max="100" min="3" 
 				placeholder="<?= JText::_('COM_CLASSIFICADOS_CAMPO_BUSCA') ?>"/>
 		</div>
-	</div>
+	</div><!--
+1 - Formulário com o campo e-mail e o botão convidar
+2 - Lista com:
+    Botão para cancelar convite 
+    e-mails dos convidados
+    data de aceite
+    data de recusa
+-->
 <?php if($ste == null || empty($ste)) : ?>
 	<div class="control-group">
 		<label class="control-label" for="tipoEmpresa"><?= JText::_('COM_CLASSIFICADOS_CAMPO_TIPO_EMPRESA') ?></label>

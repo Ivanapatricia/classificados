@@ -26,6 +26,7 @@ class ClassificadosControllerEmpresa extends BaseController
 {
 	const TB_PRODUTO = '`#__produto`';
 	const TB_EMPRESA = '`#__empresa`';
+	const TB_PESSOA = '`#__pessoa`';
 	const TB_TIPO_EMPRESA = '`#__tipo_empresa`';
 	const TB_TIPO_PRODUTO = '`#__tipo_produto`';
 	const TB_FOTO_PRODUTO = '`#__foto_produto`';
@@ -34,11 +35,53 @@ class ClassificadosControllerEmpresa extends BaseController
 	const ITENS_POR_PAGINA = 20;
 	const STATUS_ATIVO = 'A';
 
-	public function cadastro(){
+	public function empresa(){
+		//Se não estiver logado.
+		$this->getModel('classificados')->isLogado('empresa.empresa') || exit();
 		$db = JFactory::getDbo ();
 		$app = JFactory::getApplication();
 		$document = JFactory::getDocument();
+		$user = JFactory::getUser();
 		$input = $app->input;
+		$itemid = $input->get('Itemid', null, 'string');
+
+
+
+
+		
+		$query = $db->getQuery ( true );
+		$query->select("`id_empresa as id`")
+			->from (ClassificadosControllerEmpresa::TB_PESSOA)
+			->where( $db->quoteName('status') . ' = ' . $db->quote(ClassificadosControllerEmpresa::STATUS_ATIVO), 'AND')
+			->where( $db->quoteName('id_usuario') . ' = ' . $db->quote($user->id))
+			->setLimit(1);
+
+		$db->setQuery ( $query );
+		$empresa = $db->loadObject();
+		if($empresa == null || $empresa == '' || $empresa->id == null || $empresa->id == ''){
+			//Caso não tenha pessoa cadastrada.
+			$app->redirect(JRoute::_( 'index.php?option=com_classificados&task=pessoa.cadastro&p=1&Itemid='.$itemid , false ), "" );
+			exit();
+			return;
+		}
+
+		$empresaId = $empresa->id;
+		$query->select("`uuid`,`exibir`,`nome_fantasia`,`razao_social`,`cnpj`,`descricao`,`id_tipo_empresa`,
+		`id_tipo_destaque_ativo`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`ip_alterador`,
+		`ip_alterador_proxiado`,`id_user_alterador`,`data_criado`,`data_alterado`")
+			->from (ClassificadosControllerEmpresa::TB_EMPRESA)
+			->where( $db->quoteName('status') . ' = ' . $db->quote(ClassificadosControllerEmpresa::STATUS_ATIVO), 'AND')
+			->where( $db->quoteName('id') . ' = ' . $db->quote($empresaId))
+			->setLimit(1);
+
+		$db->setQuery ( $query );
+		$empresa = $db->loadObject();
+		$input->set( 'item', $empresa );
+		
+		$input->set( 'isCadastrada', !($empresa == null || $empresa == '' || $empresa->id == null || $empresa->id == '' ));
+		
+
+
 
 		
 
@@ -49,61 +92,10 @@ class ClassificadosControllerEmpresa extends BaseController
 
 
 
-	/**
-	 * Busca empresas pelo filtro.
-	 */
-	private function _salvarAcesso(){
-		$db = JFactory::getDbo();
-
-		// Create a new query object.
-		$query = $db->getQuery(true);
-		
-		// Insert columns.
-		$columns = array('url', 'ip_criador', 'ip_criador_proxiado', 'status', 'data_criado');
-		
-		// Insert values.
-		$values = array($db->quote($_SERVER['REQUEST_URI']), 
-						$db->quote($_SERVER['REMOTE_ADDR']), 
-						$db->quote($_SERVER['HTTP_X_FORWARDED_FOR']), 
-						ClassificadosControllerBusca::STATUS_ATIVO,
-						'NOW()');
-		
-		// Prepare the insert query.
-		$query
-			->insert($db->quoteName('#__url_busca'))
-			->columns($db->quoteName($columns))
-			->values(implode(',', $values));
-		
-		// Set the query using our newly populated query object and execute it.
-		$db->setQuery($query);
-		$db->execute();
-
-
-	}
 
 
 
 
-	/**
-	 * Verifica se o usuário está logado.
-	 *
-	 * @param $task Tarefa que deve ser acionada do componente após o login.
-	 * @return bool Retorna False se não estiver logado e true caso esteja.
-	 * @throws Exception Não prvisto.
-	 */
-	private function _isLogad($task){
-		$user = JFactory::getUser();
-		$app = Factory::getApplication();
-		$urlRetorno = urlencode(base64_encode( 'index.php?option=com_socialblade&task='.$task.'&Itemid='.
-			JRequest::getVar('Itemid') ));
-		$login =  JRoute::_ ( 'index.php?option=com_users&view=login&Itemid=' . JRequest::getVar('Itemid') .
-			'&return='.$urlRetorno, false );
-		if ($user == null || $user->id == null || $user->id == 0) {
-			$app->redirect ($login, "" );
-			$app->enqueueMessage(JText::sprintf('COM_SOCIALBLADES_NAO_LOGADO'), 'error');
-			return false;
-		}
-		return true;
-	}
+
 
 }

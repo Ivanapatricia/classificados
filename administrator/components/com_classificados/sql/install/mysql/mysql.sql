@@ -235,28 +235,26 @@ CREATE TABLE IF NOT EXISTS `#__telefone_empresa` (
 -- Table `#__email_empresa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__email_empresa` (
-    `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `id_empresa` BIGINT NOT NULL,
-    `email` VARCHAR(255) NOT NULL,
-    `exibir` TINYINT(1) NULL DEFAULT 1,
-    `contato` TINYINT(1) NULL DEFAULT 1,
-    `validado` DATETIME NULL,
-    `status`            enum('A','R','B') DEFAULT 'A',
-    `id_user_criador`   INT NOT NULL,
-    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `id`                    BIGINT NOT NULL AUTO_INCREMENT,
+    `id_empresa`            BIGINT NOT NULL,
+    `email`                 VARCHAR(255) NOT NULL,
+    `exibir`                TINYINT(1) NULL DEFAULT 1,
+    `contato`               TINYINT(1) NULL DEFAULT 1,
+    `validado`              DATETIME NULL,
+    `status`                enum('A','R','B') DEFAULT 'A',
+    `id_user_criador`       INT NOT NULL,
+    `ip_criador`            VARCHAR(20)  NOT NULL,
     `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
-    `ip_alterador`   VARCHAR(20) NULL,
-    `ip_alterador_proxiado`   VARCHAR(20) NULL,
-    `id_user_alterador` INT,
-    `data_criado`      DATETIME NOT NULL,
-    `data_alterado`    DATETIME,
+    `ip_alterador`          VARCHAR(20) NULL,
+    `ip_alterador_proxiado` VARCHAR(20) NULL,
+    `id_user_alterador`     INT,
+    `data_criado`           DATETIME NOT NULL,
+    `data_alterado`         DATETIME,
     CONSTRAINT `fk_email_emp_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_email_emp_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     PRIMARY KEY (`id`),
     INDEX `email_emp_empresa_idx` (`id_empresa` ASC) VISIBLE,
-    CONSTRAINT `fk_email_emp_empresa`
-    FOREIGN KEY (`id_empresa`)
-    REFERENCES `#__empresa` (`id`)
+    CONSTRAINT `fk_email_emp_empresa`  FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa` (`id`)
 ) ENGINE = InnoDB;
 
 
@@ -586,7 +584,7 @@ CREATE TABLE IF NOT EXISTS `#__forma_pagamento` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__historico_destaque` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `uuid` VARCHAR(45) NOT NULL,
+    `uuid` UNIQUE VARCHAR(45) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
     `ip_criador`   VARCHAR(20)  NOT NULL,
@@ -639,11 +637,12 @@ CREATE TABLE IF NOT EXISTS `#__pessoa` (
     `genero` ENUM('M', 'F') NULL,
     `data_nascimento` DATE NULL,
     `cpf` VARCHAR(14) NULL,
-    `id_usuario` BIGINT NOT NULL,
+    `id_usuario` INT NOT NULL,
     `id_empresa` BIGINT NOT NULL,
-    PRIMARY KEY (`id`, `nome`, `sobre_nome`),
+    PRIMARY KEY (`id`),
     UNIQUE INDEX `id_usuario_UNIQUE` (`id_usuario` ASC) VISIBLE,
     INDEX `fk_pessoa_empresa_idx` (`id_empresa` ASC) VISIBLE,
+    CONSTRAINT `fk_pessoa_users` FOREIGN KEY (`id_usuario`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_pessoa_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_pessoa_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_pessoa_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa` (`id`)
@@ -796,7 +795,7 @@ CREATE TABLE IF NOT EXISTS `#__url_busca` (
 
 
 CREATE TABLE IF NOT EXISTS `#__covites` (
-    `uuid` VARCHAR(40) NOT NULL DEFAULT UUID(),
+    `uuid` VARCHAR(40) NOT NULL,
     `email`  VARCHAR(250)  NOT NULL ,
     `data_aceite`    DATETIME,
     `data_negado`    DATETIME,
