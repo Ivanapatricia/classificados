@@ -35,9 +35,7 @@ class ClassificadosViewBusca extends HtmlView
 	protected function metadados()
 	{
 
-        JHtml::_('bootstrap.framework');
-        JHtml::_('jquery.framework');
-        JHtml::_('jquery.ui');
+
 
 		$app = JFactory::getApplication();
 		$document = JFactory::getDocument();

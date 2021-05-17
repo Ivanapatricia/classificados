@@ -18,7 +18,7 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
  * @package   classificados
  * @since     1.0.0
  */
-class ClassificadosModelClassificados extends BaseDatabaseModel
+class ClassificadosModelEmpresa extends BaseDatabaseModel
 {
 
     const TB_EMPRESA = '#__empresa';

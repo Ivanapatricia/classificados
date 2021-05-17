@@ -12,7 +12,9 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\BaseController;
-
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Date\Date;
+use Joomla\CMS\HTML\HTMLHelper;
 
 
 DEFINE('VERSAO', '1.0.0');
@@ -20,6 +22,12 @@ DEFINE('SELECTED', ' SELECTED');
 
 
 
+JHtml::_('bootstrap.framework');
+JHtml::_('jquery.framework');
+JHtml::_('jquery.ui');
+JHTML::_('behavior.tooltip');
+$doc = JFactory::getDocument();
+$doc->addScript(JURI::base() . 'media/com_classificados/js/jquery.mask.js?v='.VERSAO);
 
 if(!defined('DS')){
 	DEFINE('DS',DIRECTORY_SEPARATOR);

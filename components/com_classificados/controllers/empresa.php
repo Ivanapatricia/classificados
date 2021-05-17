@@ -50,24 +50,25 @@ class ClassificadosControllerEmpresa extends BaseController
 
 		
 		$query = $db->getQuery ( true );
-		$query->select("`id_empresa as id`")
+		$query->select("`id_empresa` AS `id`")
 			->from (ClassificadosControllerEmpresa::TB_PESSOA)
 			->where( $db->quoteName('status') . ' = ' . $db->quote(ClassificadosControllerEmpresa::STATUS_ATIVO), 'AND')
-			->where( $db->quoteName('id_usuario') . ' = ' . $db->quote($user->id))
+			->where( $db->quoteName('id') . ' = ' . $db->quote($user->id))
 			->setLimit(1);
 
 		$db->setQuery ( $query );
 		$empresa = $db->loadObject();
 		if($empresa == null || $empresa == '' || $empresa->id == null || $empresa->id == ''){
 			//Caso não tenha pessoa cadastrada.
-			$app->redirect(JRoute::_( 'index.php?option=com_classificados&task=pessoa.cadastro&p=1&Itemid='.$itemid , false ), "" );
+			$app->redirect(JRoute::_( 'index.php?option=com_classificados&task=pessoa.meusdados&p=1&Itemid='.$itemid , false ), "" );
 			exit();
 			return;
 		}
 
 		$empresaId = $empresa->id;
+		$query = $db->getQuery ( true );
 		$query->select("`uuid`,`exibir`,`nome_fantasia`,`razao_social`,`cnpj`,`descricao`,`id_tipo_empresa`,
-		`id_tipo_destaque_ativo`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`ip_alterador`,
+		`id_tipo_destaque_ativo`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`ip_alterador`,
 		`ip_alterador_proxiado`,`id_user_alterador`,`data_criado`,`data_alterado`")
 			->from (ClassificadosControllerEmpresa::TB_EMPRESA)
 			->where( $db->quoteName('status') . ' = ' . $db->quote(ClassificadosControllerEmpresa::STATUS_ATIVO), 'AND')
@@ -77,16 +78,18 @@ class ClassificadosControllerEmpresa extends BaseController
 		$db->setQuery ( $query );
 		$empresa = $db->loadObject();
 		$input->set( 'item', $empresa );
+		$isCadastrada = !($empresa == null || $empresa == '' || $empresa->id == null || $empresa->id == '' );
 		
-		$input->set( 'isCadastrada', !($empresa == null || $empresa == '' || $empresa->id == null || $empresa->id == '' ));
-		
-
-
-
+		$input->set( 'isCadastrada', $isCadastrada);
 		
 
-		$input->set( 'view', 'empresa' );
-		$input->set('layout', 'default' );
+
+
+		
+
+		$input->set( 'view', 'empresa'  );
+		//Se estiver cadastrada abre a tela normal, se não redireciona para cadastro.
+		$input->set('layout', $isCadastrada ? 'default' :  'empresa');
 		parent::display (true);
 	}
 

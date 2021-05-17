@@ -31,7 +31,7 @@ class ClassificadosModelClassificados extends BaseDatabaseModel
 	 */
 	public function isLogado($task){
 		$user = JFactory::getUser();
-		$app = Factory::getApplication();
+		$app = JFactory::getApplication();
         $itemid = $app->input->get('Itemid', '', 'string');
 		$urlRetorno = urlencode(base64_encode( 'index.php?option=com_classificados&task=' . $task . '&Itemid=' . $itemid));
 		$login =  JRoute::_ ( 'index.php?option=com_users&view=login&Itemid=' . $itemid . '&return=' . $urlRetorno, false );
@@ -44,18 +44,19 @@ class ClassificadosModelClassificados extends BaseDatabaseModel
 
 	public function gerarToken($token){
 		$retorno = ''; 
+		$id = uuid();
 		switch(rand ( 1 , 4 )){
 			case 1:
-				$retorno = "<input type='hidden' value='$token' name='1' />";
+				$retorno = "<input id='$id' type='hidden' value='$token' name='1' id=/>";
 				break;
 			case 2:
-				$retorno = "<input value='$token' type='hidden' name='1' />";
+				$retorno = "<input value='$token' type='hidden' id='$id' name='1' />";
 				break;
 			case 3:
-				$retorno = "<input name='1' value='$token' type='hidden' />";
+				$retorno = "<input id='$id' name='1' value='$token' type='hidden' />";
 				break;
 			default:
-				$retorno = "<input type='hidden'  name='1'  value='$token' />";
+				$retorno = "<input type='hidden' id='$id'  name='1'  value='$token' />";
 				break;
 		}
 

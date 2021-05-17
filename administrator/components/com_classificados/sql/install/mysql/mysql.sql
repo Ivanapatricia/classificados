@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS `#__endereco_empresa` (
     INDEX `fk_endereco_emp_empresa_idx` (`id_empresa` ASC) VISIBLE,
     INDEX `fk_endereco_emp_cidade_idx` (`id_cidade` ASC) VISIBLE,
     INDEX `fk_endereco_emp_logradouro_idx` (`id_logradouro` ASC) VISIBLE,
-    CONSTRAINT `fk_endereco_emp_empresa` FOREIGN KEY (`id_empresa`) EFERENCES `#__empresa` (`id`) ,
+    CONSTRAINT `fk_endereco_emp_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa` (`id`) ,
     CONSTRAINT `fk_endereco_emp_cidade` FOREIGN KEY (`id_cidade`) REFERENCES `#__cidade` (`id`) ,
     CONSTRAINT `fk_endereco_emp_logradouro` FOREIGN KEY (`id_logradouro`) REFERENCES `#__logradouros` (`id`)
 ) ENGINE = InnoDB;
@@ -320,7 +320,7 @@ CREATE TABLE IF NOT EXISTS `#__endereco_empresa` (
 CREATE TABLE IF NOT EXISTS `#__tipo_produto` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
     `nome` VARCHAR(250) NOT NULL,
-    `nome_plural` VARCHAR(255) NOT NULL
+    `nome_plural` VARCHAR(255) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
     `ip_criador`   VARCHAR(20)  NOT NULL,
@@ -584,7 +584,7 @@ CREATE TABLE IF NOT EXISTS `#__forma_pagamento` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__historico_destaque` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `uuid` UNIQUE VARCHAR(45) NOT NULL,
+    `uuid`  VARCHAR(45) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
     `ip_criador`   VARCHAR(20)  NOT NULL,
@@ -605,6 +605,7 @@ CREATE TABLE IF NOT EXISTS `#__historico_destaque` (
     `identificador` VARCHAR(250) NULL,
     `comprovante` VARCHAR(250) NULL,
     PRIMARY KEY (`id`),
+    UNIQUE(`uuid`),
     CONSTRAINT `fk_historico_des_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_historico_des_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     INDEX `fk_historico_destaque_empresa_idx` (`id_empresa` ASC) VISIBLE,
@@ -622,8 +623,9 @@ CREATE TABLE IF NOT EXISTS `#__historico_destaque` (
 -- Table `#__pessoa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__pessoa` (
-    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `id` INT NOT NULL,
     `nome` VARCHAR(255) NOT NULL,
+    `sobre_nome` VARCHAR(250) NOT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
     `id_user_alterador` INT,
@@ -633,16 +635,13 @@ CREATE TABLE IF NOT EXISTS `#__pessoa` (
     `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
     `ip_alterador`   VARCHAR(20) NULL,
     `ip_alterador_proxiado`   VARCHAR(20) NULL,
-    `sobre_nome` VARCHAR(45) NOT NULL,
-    `genero` ENUM('M', 'F') NULL,
+    `genero` ENUM('M', 'F', 'O', 'Ñ') NULL,
     `data_nascimento` DATE NULL,
     `cpf` VARCHAR(14) NULL,
-    `id_usuario` INT NOT NULL,
-    `id_empresa` BIGINT NOT NULL,
+    `id_empresa` BIGINT  NULL,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `id_usuario_UNIQUE` (`id_usuario` ASC) VISIBLE,
     INDEX `fk_pessoa_empresa_idx` (`id_empresa` ASC) VISIBLE,
-    CONSTRAINT `fk_pessoa_users` FOREIGN KEY (`id_usuario`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_pessoa_users` FOREIGN KEY (`id`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_pessoa_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_pessoa_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
     CONSTRAINT `fk_pessoa_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `#__empresa` (`id`)
@@ -655,7 +654,7 @@ CREATE TABLE IF NOT EXISTS `#__pessoa` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__telefone_pessoa` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `id_pessoa` BIGINT NOT NULL,
+    `id_pessoa` INT NOT NULL,
     `id_cidade` BIGINT NOT NULL,
     `ddd` VARCHAR(3) NULL,
     `telefone` VARCHAR(45) NOT NULL,
@@ -686,7 +685,7 @@ CREATE TABLE IF NOT EXISTS `#__telefone_pessoa` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__email_pessoa` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `id_pessoa` BIGINT NOT NULL,
+    `id_pessoa` INT NOT NULL,
     `email` VARCHAR(255) NOT NULL,
     `exibir` TINYINT(1) NULL DEFAULT 1,
     `contato` TINYINT(1) NULL DEFAULT 1,
@@ -794,13 +793,13 @@ CREATE TABLE IF NOT EXISTS `#__url_busca` (
 ) ENGINE = InnoDB;
 
 
-CREATE TABLE IF NOT EXISTS `#__covites` (
+CREATE TABLE IF NOT EXISTS `#__convites` (
     `uuid` VARCHAR(40) NOT NULL,
     `email`  VARCHAR(250)  NOT NULL ,
     `data_aceite`    DATETIME,
     `data_negado`    DATETIME,
     `id_empresa`    BIGINT NOT NULL,
-	`id_pessoa_cadastrada`    BIGINT NULL,
+	`id_pessoa_cadastrada`    INT NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `ip_criador`   VARCHAR(20)  NOT NULL,
     `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,

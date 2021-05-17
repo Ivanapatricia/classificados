@@ -26,12 +26,22 @@ defined ( '_JEXEC' ) || die ( 'Restricted access' );
 $app = JFactory::getApplication();
 $input = $app->input;
 $itemid = $input->get( 'Itemid', null, 'string' );
+$task =  $input->get( 'task', null, 'string' );
 
 
-$url =  JRoute::_( 'index.php?option=com_classificados&task=emailempresa.carregar&Itemid='.$itemid , false );
-$urlGravar =  JRoute::_( 'index.php?option=com_classificados&task=emailempresa.gravar&Itemid='.$itemid , false );
+$url =  JRoute::_( 'index.php?option=com_classificados&task=empresa.empresa&Itemid='.$itemid , false );
+$urlGravar =  JRoute::_( 'index.php?option=com_classificados&task=empresa.gravar&Itemid='.$itemid , false );
 
-if (JRequest::getVar( 'task' ) == null || JRequest::getVar ( 'task' ) == '') {
+if ($task == null || $task == '') {
 	$app->redirect ($url, "" );
 	exit();
 }
+?>
+<form action="<?= $urlGravar ?>" method="post" enctype="application/x-www-form-urlencoded" class="form-validate form-horizontal">
+	<input type="hidden" name="option" value="com_classificados"/>
+	<input type="hidden" name="task" value="empresa.gravar"/>
+	<input type="hidden" name="Itemid" value="<?= $itemid ?>"/>
+    <?= $this->getModel('classificados')->gerarToken($token) ?>
+
+
+</form>

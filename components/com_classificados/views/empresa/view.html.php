@@ -34,10 +34,7 @@ class ClassificadosViewEmpresa extends HtmlView
 	 */
 	protected function metadados()
 	{
-        JHtml::_('bootstrap.framework');
-        JHtml::_('jquery.framework');
-        JHtml::_('jquery.ui');
-		JHTML::_('behavior.tooltip');
+
 
 
 		$app = JFactory::getApplication();
