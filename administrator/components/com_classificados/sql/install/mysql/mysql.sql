@@ -2035,9 +2035,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Massapê','CE','0','35191','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Mauriti','CE','0','44240','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Meruoca','CE','0','13693','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Milagres','CE','0','28316','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
-
-INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
+('Milagres','CE','0','28316','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Milhã','CE','0','13086','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Miraíma','CE','0','12800','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Missão Velha','CE','0','34274','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -3045,9 +3043,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Itagi','BA','0','13051','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itagibá','BA','0','15193','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itagimirim','BA','0','7110','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Itaguaçu da Bahia','BA','0','13209','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
-
-INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
+('Itaguaçu da Bahia','BA','0','13209','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itaju do Colônia','BA','0','7309','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itajuípe','BA','0','21081','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itamaraju','BA','0','63069','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -4045,9 +4041,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('São Sebastião do Rio Preto','MG','0','1613','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Sebastião do Rio Verde','MG','0','2110','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Tiago','MG','0','10561','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('São Tomás de Aquino','MG','0','7093','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
-
-INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
+('São Tomás de Aquino','MG','0','7093','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Thomé Das Letras','MG','0','6655','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Vicente de Minas','MG','0','7008','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Sapucaí-mirim','MG','0','6241','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -5045,9 +5039,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Cruzeiro do Sul','PR','0','4563','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Cruz Machado','PR','0','18040','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Cruzmaltina','PR','0','3162','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Curitiba','PR','1','1751907','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
-
-INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
+('Curitiba','PR','1','1751907','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Curiúva','PR','0','13923','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Diamante do Norte','PR','0','5516','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Diamante do Sul','PR','0','3510','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -6611,7 +6603,8 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Vicentinópolis','GO','0','7371','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Vila Boa','GO','0','4735','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Vila Propício','GO','0','5145','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Brasília','DF','1','2570160','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+('Brasília  ','DF','1','2570160','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
