@@ -38,7 +38,8 @@ DROP TABLE `#__carrinho` ;
 DROP TABLE `#__carrinho_produto` ;
 DROP TABLE `#__url_busca` ;
 DROP TABLE `#__convites` ;
-
+DROP TABLE `#__emailblacklist`;
+DROP TABLE `#__telefoneblacklist`;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

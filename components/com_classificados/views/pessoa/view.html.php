@@ -96,4 +96,8 @@ class ClassificadosViewPessoa extends HtmlView
 	function selecionado($um, $outro){
 		return $um != null && trim($um) != '' && $um==$outro?  ' SELECTED' : '';
 	}
+
+	function checked($um){
+		return $um != null && trim($um) != '' ?  ' CHECKED' : '';
+	}
 }

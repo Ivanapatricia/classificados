@@ -27,7 +27,11 @@ class ClassificadosControllerPessoa extends BaseController
 	const TB_EMPRESA = '`#__empresa`';
 	const TB_PESSOA = '`#__pessoa`';
 
+
+	
 	const TB_EMAILPESSOA = '`#__email_pessoa`';
+	const TB_TELEFONEPESSOA = '`#__telefone_pessoa`';
+	const TB_ENDERECOPESSOA = '`#__endereco_pessoa`';
 	const TB_USERS = '`#__users`';
 
 
@@ -51,8 +55,8 @@ class ClassificadosControllerPessoa extends BaseController
 			->from (ClassificadosControllerPessoa::TB_PESSOA . 'AS `a`')
 			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS. 'AS `b` ON `a`.`id` = `b`.`id`')
 			
-			->where( '`a`.`status`' . ' = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
-			->where( '`a`.`id`' . ' = ' . $db->quote($user->id),  'AND')
+			->where( '`a`.`status` = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
+			->where( '`a`.`id` = ' . $db->quote($user->id),  'AND')
 			->where( '`b`.`block`  = 0 ')
 			->setLimit(1);
 		$db->setQuery ( $query );
@@ -75,30 +79,94 @@ class ClassificadosControllerPessoa extends BaseController
 		$user = JFactory::getUser();
 		$input = $app->input;
 
-
 		if(! $this->_carregarDados()){
 			$this->editar();
 			return;
 		}
-
-
-
-
 
 			
 
 		$query = $db->getQuery ( true );
 		$query->select(' `a`.`id`,`a`.`id_pessoa`,`a`.`email`,`a`.`exibir`,`a`.`contato`,`a`.`validado`,`a`.`status`,`a`.`id_user_criador`,
 			`a`.`ip_criador`,`a`.`ip_criador_proxiado`,`a`.`ip_alterador`,`a`.`ip_alterador_proxiado`,`a`.`id_user_alterador`,
-			`a`.`data_criado`,`a`.`data_alterado`,`a`.`name` AS `nomeAlterador` ')
+			`a`.`data_criado`,`a`.`data_alterado`,`c`.`name` AS `nomeAlterador`, `b`.`name` AS `nomeCriador`   ')
 			->from (ClassificadosControllerPessoa::TB_EMAILPESSOA . ' AS `a`' )
-			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `b` ON `a`.`id_user_alterador` = `b`.`id`')
-			->where( '`status`' . ' = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
-			->where( '`id_pessoa`' . ' = ' . $db->quote($user->id))
+			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `b` ON `a`.`id_user_criador` = `b`.`id`')
+			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `c` ON `a`.`id_user_alterador` = `c`.`id`')
+			->where( '`status` = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
+			->where( '`id_pessoa` = ' . $db->quote($user->id))
 			->setLimit(100);
 		$db->setQuery ( $query );
-		$emails = $db->loadObjectList();
-		$input->set( 'emails', $emails);
+		$itens = $db->loadObjectList();
+		if($itens==null || empty($itens)){
+			$query = $db->getQuery(true);
+            
+            $columns = array('email', 'exibir', 'contato', 'id_pessoa',
+			'status', 'id_user_criador', 'ip_criador', 'ip_criador_proxiado', 'data_criado');
+            $values = array(
+                $db->quote($user->email),
+                '1',
+                '0',
+                $db->quote($user->id), 
+                $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO),
+                $db->quote($user->id), 
+                $db->quote($_SERVER['REMOTE_ADDR']), 
+                $db->quote($_SERVER['HTTP_X_FORWARDED_FOR']), 
+                'NOW()');
+            
+            $query
+                ->insert(ClassificadosControllerPessoa::TB_EMAILPESSOA)
+                ->columns($db->quoteName($columns))
+                ->values(implode(',', $values));
+            $db->setQuery($query);
+            $db->execute();
+
+
+			$query = $db->getQuery ( true );
+			$query->select(' `a`.`id`,`a`.`id_pessoa`,`a`.`email`,`a`.`exibir`,`a`.`contato`,`a`.`validado`,`a`.`status`,`a`.`id_user_criador`,
+				`a`.`ip_criador`,`a`.`ip_criador_proxiado`,`a`.`ip_alterador`,`a`.`ip_alterador_proxiado`,`a`.`id_user_alterador`,
+				`a`.`data_criado`,`a`.`data_alterado`,`c`.`name` AS `nomeAlterador`, `b`.`name` AS `nomeCriador`   ')
+				->from (ClassificadosControllerPessoa::TB_EMAILPESSOA . ' AS `a`' )
+				->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `b` ON `a`.`id_user_criador` = `b`.`id`')
+				->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `c` ON `a`.`id_user_alterador` = `c`.`id`')
+				->where( '`status` = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
+				->where( '`id_pessoa` = ' . $db->quote($user->id))
+				->setLimit(100);
+			$db->setQuery ( $query );
+			$itens = $db->loadObjectList();
+		}
+		$input->set( 'emails', $itens);
+
+		$query = $db->getQuery ( true );
+		$query->select(' `a`.`id`,`a`.`id_pessoa`,`a`.`ddd`,`a`.`telefone`,`a`.`exibir`,`a`.`tipo`,`a`.`validado`,`a`.`status`,`a`.`id_user_criador`,
+			`a`.`ip_criador`,`a`.`ip_criador_proxiado`,`a`.`ip_alterador`,`a`.`ip_alterador_proxiado`,`a`.`id_user_alterador`,
+			`a`.`data_criado`,`a`.`data_alterado`,`c`.`name` AS `nomeAlterador`, `b`.`name` AS `nomeCriador`   ')
+			->from (ClassificadosControllerPessoa::TB_TELEFONEPESSOA . ' AS `a`' )
+			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `b` ON `a`.`id_user_criador` = `b`.`id`')
+			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `c` ON `a`.`id_user_alterador` = `c`.`id`')
+			->where( '`status` = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
+			->where( '`id_pessoa` = ' . $db->quote($user->id))
+			->setLimit(100);
+		$db->setQuery ( $query );
+		$itens = $db->loadObjectList();
+		$input->set( 'telefones', $itens);
+
+
+
+
+		$query = $db->getQuery ( true );
+		$query->select(' `a`.`id`,`a`.`id_pessoa`,`a`.`ddd`,`a`.`telefone`,`a`.`exibir`,`a`.`tipo`,`a`.`validado`,`a`.`status`,`a`.`id_user_criador`,
+			`a`.`ip_criador`,`a`.`ip_criador_proxiado`,`a`.`ip_alterador`,`a`.`ip_alterador_proxiado`,`a`.`id_user_alterador`,
+			`a`.`data_criado`,`a`.`data_alterado`,`c`.`name` AS `nomeAlterador`, `b`.`name` AS `nomeCriador`   ')
+			->from (ClassificadosControllerPessoa::TB_ENDERECOPESSOA . ' AS `a`' )
+			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `b` ON `a`.`id_user_criador` = `b`.`id`')
+			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `c` ON `a`.`id_user_alterador` = `c`.`id`')
+			->where( '`status` = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
+			->where( '`id_pessoa` = ' . $db->quote($user->id))
+			->setLimit(100);
+		$db->setQuery ( $query );
+		$itens = $db->loadObjectList();
+		$input->set( 'enderecos', $itens);
 
 
         $input->set( 'view', 'pessoa' );
@@ -219,8 +287,8 @@ class ClassificadosControllerPessoa extends BaseController
 		$query = $db->getQuery ( true );
 		$query->select('`a`.`id`')
 			->from (ClassificadosControllerPessoa::TB_PESSOA . 'AS `a`')
-			->where( '`a`.`status`' . ' = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
-			->where( '`a`.`id`' . ' = ' . $db->quote($user->id))
+			->where( '`a`.`status` = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
+			->where( '`a`.`id` = ' . $db->quote($user->id))
 			->setLimit(1);
 
 		$db->setQuery ( $query );

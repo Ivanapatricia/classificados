@@ -41,10 +41,10 @@ $nascimento = $this->umOuOutro($nascimento, $item->nascimento );
 $cpf = $this->umOuOutro($cpf, $item->cpf );
 
 $nome = $nome == null || trim($nome) == '' && $item != null ? $item->usuario->name : $nome;
+$voltar = JRoute::_( 'index.php?option=com_classificados&task=pessoa.meusdados&Itemid='.$itemid , false );
 
 
 $doc = JFactory::getDocument();
-$doc->addScript(JURI::base() . 'media/com_classificados/js/jquery.mask.js?v='.VERSAO);
 $doc->addScriptDeclaration('
 jQuery(document).ready(function(){
     jQuery("#cpf").mask("###.###.###-##");
@@ -111,13 +111,16 @@ jQuery(document).ready(function(){
 
         <div class="btn-toolbar text-right">
             <div class="btn-group">
-                <button type="submit" id="btnBuscar" class="btn"><?=
+            <a type="button" id="btnCancelar" class="btn btn-danger" href="<?= $voltar ?>"><?=
+                JText::_('COM_CLASSIFICADOS_BTN_CANCELAR') . JText::_('COM_CLASSIFICADOS_BTN_CANCELAR_TEXT') ?></a>
+
+                <button type="submit" id="btnBuscar" class="btn btn-success"><?=
                 JText::_('COM_CLASSIFICADOS_BTN_EDITAR') . JText::_('COM_CLASSIFICADOS_PESSOA_BTN_EDITAR_TEXT') ?></button>
             </div>
         </div>
     </fieldset>
-
-
+</form>
+<div class="well">
     <h3><?= JText::_('COM_CLASSIFICADOS_ACESSO') ?></h3>
     <div class="tab-pane active" id="usuario">      
         <div class="row">
@@ -133,5 +136,4 @@ jQuery(document).ready(function(){
             <div class="span3 text-center"><?= $this->umOuOutro( $this->formatarDataHora($item->data_criado) ,$this->formatarDataHora($item->data_alterado))?></div>
         </div> 
     </div>
-
-</form>
+</div>
