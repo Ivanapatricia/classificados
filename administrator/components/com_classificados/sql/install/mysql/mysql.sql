@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS `#__endereco_empresa` (
     `numero` VARCHAR(20) NULL,
     `complemento` VARCHAR(250) NULL,
     `bairro` VARCHAR(250) NULL,
-    `cep` VARCHAR(8) NOT NULL,
+    `cep` VARCHAR(9) NOT NULL,
     `exibir` TINYINT(1) NULL DEFAULT 1,
     PRIMARY KEY (`id`),
     INDEX `fk_endereco_emp_empresa_idx` (`id_empresa` ASC) VISIBLE,
@@ -350,6 +350,7 @@ CREATE TABLE IF NOT EXISTS `#__caracteristica` (
     `tipo_valor` ENUM('TEXT','NUMERIC','CHECKED','OPTION','DINHEIRO','M²','CENTIMETROS','METROS','ALTURA'),
     `limit_chars_valor` BIGINT NULL,
     `pattern` VARCHAR(250) NULL,
+    `html` VARCHAR(250) NULL,
     `status`            enum('A','R','B') DEFAULT 'A',
     `id_user_criador`   INT NOT NULL,
     `ip_criador`   VARCHAR(20)  NOT NULL,
@@ -764,7 +765,7 @@ CREATE TABLE IF NOT EXISTS `#__endereco_pessoa` (
     `numero` VARCHAR(20) NULL,
     `complemento` VARCHAR(250) NULL,
     `bairro` VARCHAR(250) NULL,
-    `cep` VARCHAR(8) NOT NULL,
+    `cep` VARCHAR(9) NOT NULL,
     `exibir` TINYINT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
     INDEX `fk_endereco_pessoa_idx` (`id_pessoa` ASC) VISIBLE,
@@ -776,7 +777,9 @@ CREATE TABLE IF NOT EXISTS `#__endereco_pessoa` (
 ) ENGINE = InnoDB;
 
 
-
+-- -----------------------------------------------------
+-- Table `#__emailblacklist`
+-- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__emailblacklist`  (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
     `email` VARCHAR(255) NOT NULL,
@@ -795,6 +798,11 @@ CREATE TABLE IF NOT EXISTS `#__emailblacklist`  (
     
 ) ENGINE = InnoDB;
 
+
+-- -----------------------------------------------------
+-- Table `#__contato`
+-- Contatos ocorridos entre usuários
+-- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__contato` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
     `id_email_pessoa_destino` BIGINT NULL,
@@ -823,7 +831,9 @@ CREATE TABLE IF NOT EXISTS `#__contato` (
 ) ENGINE = InnoDB;
 
 
-
+-- -----------------------------------------------------
+-- Table `#__carrinho`
+-- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__carrinho` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
     `id_users_origem` INT NULL,
@@ -843,6 +853,9 @@ CREATE TABLE IF NOT EXISTS `#__carrinho` (
 ) ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `#__carrinho_produto`
+-- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__carrinho_produto` (
     `id_carrinho`  BIGINT  NOT NULL,
     `id_produto`  BIGINT  NOT NULL,
@@ -868,7 +881,9 @@ CREATE TABLE IF NOT EXISTS `#__carrinho_produto` (
 
 
 
-
+-- -----------------------------------------------------
+-- Table `#__url_busca`
+-- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__url_busca` (
     `id`  BIGINT  NOT NULL AUTO_INCREMENT,
     `url`  VARCHAR(250)  UNIQUE NULL ,
@@ -881,6 +896,10 @@ CREATE TABLE IF NOT EXISTS `#__url_busca` (
 ) ENGINE = InnoDB;
 
 
+
+-- -----------------------------------------------------
+-- Table `#__convites`
+-- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__convites` (
     `uuid` VARCHAR(40) NOT NULL,
     `email`  VARCHAR(250)  NOT NULL ,
@@ -908,6 +927,57 @@ CREATE TABLE IF NOT EXISTS `#__convites` (
 
 
 
+-- -----------------------------------------------------
+-- Table `#__perfis_classificados`
+-- Tipo A: Administrador, permite administrar o sistema
+-- Tipo U: Usuario, Admintrar os classificados
+-- Tipo C: Comum, só consulta 
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `#__perfis_classificados` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `id_viewlevels`  INT NOT NULL ,
+ 
+    `tipo`            enum('C','A','U') DEFAULT 'U',
+ 
+    `status`            enum('A','R','B') DEFAULT 'A',
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `ip_alterador`   VARCHAR(20) NULL,
+    `ip_alterador_proxiado`   VARCHAR(20) NULL,
+    `id_user_alterador` INT,
+    `id_user_criador` INT NOT NULL,
+    `data_criado`      DATETIME NOT NULL,
+    `data_alterado`    DATETIME,
+ --   CONSTRAINT `fk_perfis_classificados` FOREIGN KEY (`id_viewlevels`) REFERENCES `#__viewlevels`(`id`),
+
+    CONSTRAINT `fk_perfis_classificados_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    CONSTRAINT `fk_perfis_classificados_user_cri` FOREIGN KEY (`id_user_criador`) REFERENCES `#__users`(`id`),
+    PRIMARY KEY (`id` )
+
+) ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `#__perfis_cla_tiproduto`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `#__perfis_cla_tiproduto` (
+    `id_perfil` BIGINT NOT NULL ,
+    `id_tipoproduto`  BIGINT NOT NULL ,
+ 
+ 
+ 
+    `ip_criador`   VARCHAR(20)  NOT NULL,
+    `ip_criador_proxiado`   VARCHAR(20)  NOT NULL,
+    `id_user_alterador` INT NOT NULL,
+    `data_criado`      DATETIME NOT NULL,
+    CONSTRAINT `fk_perfis_cla_tiproduto_perf1` FOREIGN KEY (`id_perfil`) REFERENCES `#__perfis_classificados`(`id`),
+    CONSTRAINT `fk_perfis_cla_tiproduto_perf2` FOREIGN KEY (`id_tipoproduto`) REFERENCES `#__tipo_produto`(`id`),
+
+
+
+    CONSTRAINT `fk_perfis_cla_tiproduto_user_alt` FOREIGN KEY (`id_user_alterador`) REFERENCES `#__users`(`id`),
+    PRIMARY KEY (`id_perfil`,`id_tipoproduto`)
+
+) ENGINE = InnoDB;
 
 
 
@@ -921,8 +991,37 @@ CREATE TABLE IF NOT EXISTS `#__convites` (
 
 
 
-SELECT id INTO @IDUSUARIO FROM teste_users limit 1;
+
+
+
+
+SELECT id INTO @IDUSUARIO FROM #__users limit 1;
 SELECT SUBSTRING_INDEX(USER(), '@', -1) INTO @IPACESSO;
+
+
+
+SELECT max(`ordering`) + 1 INTO @ORDEM FROM `#__viewlevels`;
+
+
+
+
+INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES 
+('Usuario Comum', @ORDEM, '[2]' );
+
+SELECT last_insert_id() INTO @ID;
+
+INSERT INTO `#__perfis_classificados`  (`id_viewlevels`, `tipo`,`status`,`id_user_criador` ,`ip_criador`,`ip_criador_proxiado`, `data_criado`) VALUES 
+(@ID, 'C', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW());
+
+INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES 
+('Parceiro', @ORDEM + 1, '[2]' );
+
+INSERT INTO `#__perfis_classificados`  (`id_viewlevels`, `tipo`,`status`,`id_user_criador` ,`ip_criador`,`ip_criador_proxiado`, `data_criado`) VALUES 
+(@ID, 'C', 'A', @IDUSUARIO, @IPACESSO, @IPACESSO, NOW());
+
+
+
+
 
 
 
@@ -1235,7 +1334,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Faro','PA','0','8177','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Floresta do Araguaia','PA','0','17768','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Garrafão do Norte','PA','0','25034','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Goianésia do Pará','PA','0','30436','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Goianésia do Pará','PA','0','30436','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Gurupá','PA','0','29062','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Igarapé-açu','PA','0','35887','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Igarapé-miri','PA','0','58077','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -1258,7 +1359,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Melgaço','PA','0','24808','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Mocajuba','PA','0','26731','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Moju','PA','0','70018','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Mojuí dos Campos','PA','0','','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Mojuí dos Campos','PA','0',null,'A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Monte Alegre','PA','0','55462','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Muaná','PA','0','34204','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Nova Esperança do Piriá','PA','0','20158','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -1433,7 +1534,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Novo Alegre','TO','0','2286','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Novo Jardim','TO','0','2457','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Oliveira de Fátima','TO','0','1037','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Palmeirante','TO','0','4954','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Palmeirante','TO','0','4954','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Palmeirópolis','TO','0','7339','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Paraíso do Tocantins','TO','0','44417','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Paranã','TO','0','10338','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -1472,7 +1575,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('São Sebastião do Tocantins','TO','0','4283','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Valério da Natividade','TO','0','4383','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Silvanópolis','TO','0','5068','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Sítio Novo do Tocantins','TO','0','9148','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Sítio Novo do Tocantins','TO','0','9148','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Sucupira','TO','0','1742','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Taguatinga','TO','0','15051','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Taipas do Tocantins','TO','0','1945','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -1710,7 +1815,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Altos','PI','0','38822','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Alvorada do Gurguéia','PI','0','5050','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Amarante','PI','0','17135','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Angical do Piauí','PI','0','6672','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Angical do Piauí','PI','0','6672','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Anísio de Abreu','PI','0','9098','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Antônio Almeida','PI','0','3039','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Aroazes','PI','0','5779','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -1888,7 +1995,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('São Félix do Piauí','PI','0','3069','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Francisco de Assis do Piauí','PI','0','5567','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Francisco do Piauí','PI','0','6298','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('São Gonçalo do Gurguéia','PI','0','2825','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('São Gonçalo do Gurguéia','PI','0','2825','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('São Gonçalo do Piauí','PI','0','4754','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São João da Canabrava','PI','0','4445','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São João da Fronteira','PI','0','5608','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -2086,7 +2195,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Santana do Cariri','CE','0','17170','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Santa Quitéria','CE','0','42763','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Benedito','CE','0','44178','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('São Gonçalo do Amarante','CE','0','43890','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('São Gonçalo do Amarante','CE','0','43890','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('São João do Jaguaribe','CE','0','7900','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Luís do Curu','CE','0','12332','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Senador Pompeu','CE','0','26469','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -2284,7 +2395,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Alcantil','PB','0','5239','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Algodão de Jandaíra','PB','0','2366','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Alhandra','PB','0','18007','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('São João do Rio do Peixe','PB','0','18201','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('São João do Rio do Peixe','PB','0','18201','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Amparo','PB','0','2088','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Aparecida','PB','0','7676','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Araçagi','PB','0','17224','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -2482,7 +2595,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Serra Redonda','PB','0','7050','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Serraria','PB','0','6238','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Sertãozinho','PB','0','4395','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Sobrado','PB','0','7373','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Sobrado','PB','0','7373','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Solânea','PB','0','26693','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Soledade','PB','0','13739','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Sossêgo','PB','0','3169','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -2680,7 +2795,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Venturosa','PE','0','16052','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Verdejante','PE','0','9142','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Vertente do Lério','PE','0','7873','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Vertentes','PE','0','18222','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Vertentes','PE','0','18222','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Vicência','PE','0','30732','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Vitória de Santo Antão','PE','0','129974','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Xexéu','PE','0','14093','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -2878,7 +2995,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Andaraí','BA','0','13960','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Andorinha','BA','0','14414','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Angical','BA','0','14073','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Anguera','BA','0','10242','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Anguera','BA','0','10242','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Antas','BA','0','17072','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Antônio Cardoso','BA','0','11554','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Antônio Gonçalves','BA','0','11015','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -3076,7 +3195,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Jequié','BA','0','151895','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Jeremoabo','BA','0','37680','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Jiquiriçá','BA','0','14118','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Jitaúna','BA','0','14115','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Jitaúna','BA','0','14115','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('João Dourado','BA','0','22549','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Juazeiro','BA','0','197965','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Jucuruçu','BA','0','10290','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -3274,7 +3395,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Vera Cruz','BA','0','37567','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Vereda','BA','0','6800','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Vitória da Conquista','BA','0','306866','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Wagner','BA','0','8983','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Wagner','BA','0','8983','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Wanderley','BA','0','12485','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Wenceslau Guimarães','BA','0','22189','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Xique-xique','BA','0','45536','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -3472,7 +3595,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Conceição do Mato Dentro','MG','0','17908','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Conceição do Pará','MG','0','5158','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Conceição do Rio Verde','MG','0','12949','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Conceição Dos Ouros','MG','0','10388','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Conceição Dos Ouros','MG','0','10388','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Cônego Marinho','MG','0','7101','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Confins','MG','0','5936','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Congonhal','MG','0','10468','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -3670,7 +3795,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Itutinga','MG','0','3913','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Jaboticatubas','MG','0','17134','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Jacinto','MG','0','12134','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Jacuí','MG','0','7502','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Jacuí','MG','0','7502','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Jacutinga','MG','0','22772','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Jaguaraçu','MG','0','2990','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Jaíba','MG','0','33587','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -3868,7 +3995,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Piedade do Rio Grande','MG','0','4709','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Piedade Dos Gerais','MG','0','4640','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Pimenta','MG','0','8236','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Pingo-d´água','MG','0','4420','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Pingo-d´água','MG','0','4420','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Pintópolis','MG','0','7211','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Piracema','MG','0','6406','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Pirajuba','MG','0','4656','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -4066,7 +4195,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Serrania','MG','0','7542','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Serranópolis de Minas','MG','0','4425','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Serranos','MG','0','1995','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Serro','MG','0','20835','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Serro','MG','0','20835','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Sete Lagoas','MG','0','214152','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Silveirânia','MG','0','2192','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Silvianópolis','MG','0','6027','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -4264,7 +4395,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Parati','RJ','0','37533','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Paty do Alferes','RJ','0','26359','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Petrópolis','RJ','0','295917','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Pinheiral','RJ','0','22719','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Pinheiral','RJ','0','22719','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Piraí','RJ','0','26314','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Porciúncula','RJ','0','17760','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Porto Real','RJ','0','16592','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -4662,7 +4795,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Motuca','SP','0','4290','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Murutinga do Sul','SP','0','4186','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Nantes','SP','0','2707','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Narandiba','SP','0','4288','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Narandiba','SP','0','4288','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Natividade da Serra','SP','0','6678','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Nazaré Paulista','SP','0','16414','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Neves Paulista','SP','0','8772','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -4860,7 +4995,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('São José do Rio Preto','SP','0','408258','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São José Dos Campos','SP','0','629921','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Lourenço da Serra','SP','0','13973','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('São Luís do Paraitinga','SP','0','10397','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('São Luís do Paraitinga','SP','0','10397','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('São Manuel','SP','0','38342','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Miguel Arcanjo','SP','0','31450','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Paulo','SP','1','11253503','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -5158,7 +5295,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Mariópolis','PR','0','6268','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Maripá','PR','0','5684','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Marmeleiro','PR','0','13900','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Marquinho','PR','0','4981','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Marquinho','PR','0','4981','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Marumbi','PR','0','4603','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Matelândia','PR','0','16078','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Matinhos','PR','0','29428','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -5256,7 +5395,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Rio Branco do Ivaí','PR','0','3898','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Rio Branco do Sul','PR','0','30650','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Rio Negro','PR','0','31274','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Rolândia','PR','0','57862','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Rolândia','PR','0','57862','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Roncador','PR','0','11537','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Rondon','PR','0','8996','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Rosário do Ivaí','PR','0','5588','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -5537,7 +5678,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Pedras Grandes','SC','0','4107','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Penha','SC','0','25141','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Peritiba','SC','0','2988','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Pescaria Brava','SC','0','','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Pescaria Brava','SC','0',null,'A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Petrolândia','SC','0','6131','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Piçarras','SC','0','17078','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Pinhalzinho','SC','0','16332','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -5639,7 +5780,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Xavantina','SC','0','4142','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Xaxim','SC','0','25713','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Zortéa','SC','0','2991','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Balneário Rincão','SC','0','','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Balneário Rincão','SC','0',null,'A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Aceguá','RS','0','4394','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Água Santa','RS','0','3722','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Agudo','RS','0','16722','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -5654,7 +5795,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Alvorada','RS','0','195673','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Amaral Ferrador','RS','0','6353','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Ametista do Sul','RS','0','7323','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('André da Rocha','RS','0','1216','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('André da Rocha','RS','0','1216','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Anta Gorda','RS','0','6073','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Antônio Prado','RS','0','12833','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Arambaré','RS','0','3693','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -5852,7 +5995,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Iraí','RS','0','8078','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itaara','RS','0','5010','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itacurubi','RS','0','3441','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Itapuca','RS','0','2344','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Itapuca','RS','0','2344','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Itaqui','RS','0','38159','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itati','RS','0','2584','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Itatiba do Sul','RS','0','4171','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -5957,7 +6102,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Pinhal Grande','RS','0','4471','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Pinheirinho do Vale','RS','0','4497','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Pinheiro Machado','RS','0','12780','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Pinto Bandeira','RS','0','','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Pinto Bandeira','RS','0',null,'A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Pirapó','RS','0','2757','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Piratini','RS','0','19841','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Planalto','RS','0','10524','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -6050,7 +6195,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('São Pedro da Serra','RS','0','3315','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Pedro Das Missões','RS','0','1886','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Pedro do Butiá','RS','0','2873','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('São Pedro do Sul','RS','0','16368','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('São Pedro do Sul','RS','0','16368','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('São Sebastião do Caí','RS','0','21932','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Sepé','RS','0','23798','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('São Valentim','RS','0','3632','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -6194,7 +6341,7 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Nova Alvorada do Sul','MS','0','16432','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Nova Andradina','MS','0','45585','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Novo Horizonte do Sul','MS','0','4940','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Paraíso das Águas','MS','0','','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Paraíso das Águas','MS','0',null,'A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Paranaíba','MS','0','40192','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Paranhos','MS','0','12350','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Pedro Gomes','MS','0','7967','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -6248,7 +6395,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Cláudia','MT','0','11028','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Cocalinho','MT','0','5490','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Colíder','MT','0','30766','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Colniza','MT','0','26381','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Colniza','MT','0','26381','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Comodoro','MT','0','18178','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Confresa','MT','0','25124','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Conquista D´oeste','MT','0','3385','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -6446,7 +6595,9 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Flores de Goiás','GO','0','12066','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Formosa','GO','0','100085','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Formoso','GO','0','4883','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
-('Gameleira de Goiás','GO','0','3275','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
+('Gameleira de Goiás','GO','0','3275','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_criador`,`ip_criador`,`ip_criador_proxiado`,`data_criado`) VALUES 
 ('Divinópolis de Goiás','GO','0','4962','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Goianápolis','GO','0','10695','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Goiandira','GO','0','5265','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
@@ -6604,6 +6755,10 @@ INSERT INTO  `#__cidade` (`nome`,`uf`,`capital`,`populacao`,`status`,`id_user_cr
 ('Vila Boa','GO','0','4735','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Vila Propício','GO','0','5145','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW()),
 ('Brasília  ','DF','1','2570160','A',@IDUSUARIO,@IPACESSO,@IPACESSO,NOW());
+
+
+
+
 
 
 

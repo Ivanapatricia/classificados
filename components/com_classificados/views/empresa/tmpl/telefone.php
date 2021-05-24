@@ -18,9 +18,9 @@ $task =  $input->get( 'task', null, 'string' );
 
 
 
-$url =  JRoute::_( 'index.php?option=com_classificados&task=pessoatelefone.telefone&Itemid='.$itemid , false );
-$urlGravar =  JRoute::_( 'index.php?option=com_classificados&task=pessoatelefone.salvar&Itemid='.$itemid , false );
-$voltar = JRoute::_( 'index.php?option=com_classificados&task=pessoa.meusdados&t=telefone&Itemid='.$itemid , false );
+$url =  JRoute::_( 'index.php?option=com_classificados&task=empresatelefone.telefone&Itemid='.$itemid , false );
+$urlGravar =  JRoute::_( 'index.php?option=com_classificados&task=empresatelefone.salvar&Itemid='.$itemid , false );
+$voltar = JRoute::_( 'index.php?option=com_classificados&task=empresa.meusdados&t=telefone&Itemid='.$itemid , false );
 if ($task == null || $task == '') {
 	$app->redirect ($url, "" );
 	exit();
@@ -42,7 +42,7 @@ jQuery(document).ready(function(){
 ?>
 <form action="<?= $urlGravar ?>" method="post" enctype="application/x-www-form-urlencoded" class="form-validate form-horizontal">
 	<input type="hidden" name="option" value="com_classificados"/>
-	<input type="hidden" name="task" value="pessoatelefone.salvar"/>
+	<input type="hidden" name="task" value="empresatelefone.salvar"/>
 	<input type="hidden" name="id" value="<?= $id ?>"/>
     <input type="hidden" name="Itemid" value="<?= $itemid ?>"/>
    
@@ -50,32 +50,32 @@ jQuery(document).ready(function(){
 
 
     <fieldset>
-        <legend><?= JText::_('COM_CLASSIFICADOS_PESSOA_DADOS_PESSOAIS') ?></legend>
+        <legend><?= JText::_('COM_CLASSIFICADOS_EMPRESA_DADOS_EMPRESAIS') ?></legend>
         <div class="control-group">
-            <label class="control-label" for="ddd"><?= JText::_('COM_CLASSIFICADOS_PESSOA_DDD') ?></label>
+            <label class="control-label" for="ddd"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_DDD') ?></label>
             <div class="controls">
                 <input type="text" id="ddd" name="ddd" value="<?= $ddd ?>"
                     required="required" maxlength="3" minlength="2" pattern="[1-9]{1}[0-9]{1}[0-9]{0,1}"
-                    placeholder="<?= JText::_('COM_CLASSIFICADOS_PESSOA_DDD_PLACEHOLDER') ?>"/>
+                    placeholder="<?= JText::_('COM_CLASSIFICADOS_EMPRESA_DDD_PLACEHOLDER') ?>"/>
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="telefone"><?= JText::_('COM_CLASSIFICADOS_PESSOA_TELEFONE') ?></label>
+            <label class="control-label" for="telefone"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_TELEFONE') ?></label>
             <div class="controls">
                 <input type="text" id="telefone" name="telefone" value="<?= $telefone ?>"
                     required="required" maxlength="10" minlength="8" pattern="(9[0-9]{4}[\-\s]{0,1}[0-9]{4})|([2-8]{1}[0-9]{3}[\-\s]{0,1}[0-9]{4})"
-                    placeholder="<?= JText::_('COM_CLASSIFICADOS_PESSOA_TELEFONE_PLACEHOLDER') ?>"/>
+                    placeholder="<?= JText::_('COM_CLASSIFICADOS_EMPRESA_TELEFONE_PLACEHOLDER') ?>"/>
             </div>
         </div>
 
         <div class="control-group">
-            <label class="control-label" for="exibir"><?= JText::_('COM_CLASSIFICADOS_PESSOA_EXIBIR_TELEFONE') ?></label>
+            <label class="control-label" for="exibir"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_EXIBIR_TELEFONE') ?></label>
             <div class="controls">
                 <input type="checkbox" name="exibir" id="exibir" value="1" <?= $this->checked($input->get('exibir'), 'S' )?>/>
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="controle"><?= JText::_('COM_CLASSIFICADOS_PESSOA_TIPO_TELEFONE') ?></label>
+            <label class="control-label" for="controle"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_TIPO_TELEFONE') ?></label>
             <div class="controls">
 
                 <select name="tipo" id="tipo" required="required">

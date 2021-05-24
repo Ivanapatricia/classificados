@@ -34,6 +34,7 @@ $divAtivo = ' active';
         <li<?= $acao == 'telefone' ? $liAtivo : ''?>><a href="#telefone" data-toggle="tab" title="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_TELEFONE') ?>"> <em class="icon-phone" alt="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_TELEFONE') ?>" title="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_TELEFONE') ?>"></em> </a></li>
         <li<?= $acao == 'endereco' ? $liAtivo : ''?>><a href="#endereco" data-toggle="tab" title="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_ENDERECO') ?>"> <em class="icon-address" alt="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_ENDERECO') ?>" title="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_ENDERECO') ?>"></em> </a></li>
         <li<?= $acao == 'configuracao' ? $liAtivo : ''?>><a href="#configuracao" data-toggle="tab" title="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_CONFIGURACAO') ?>"> <em class="icon-wrench" alt="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_CONFIGURACAO') ?>" title="<?= JText::_('COM_CLASSIFICADOS_PESSOA_MENU_CONFIGURACAO') ?>"></em> </a></li>
+ 
         <li><a href="<?= $url_trocasenha ?>" title="<?= JText::_('COM_CLASSIFICADOS_PESSOA_TROCAR_SENHA') ?>"> <em class="icon-locked" alt="<?= JText::_('COM_CLASSIFICADOS_PESSOA_TROCAR_SENHA') ?>" title="<?= JText::_('COM_CLASSIFICADOS_PESSOA_TROCAR_SENHA') ?>"></em> </a></li>
  
     </ul>
@@ -60,7 +61,7 @@ $divAtivo = ' active';
         </div>
         <div class="tab-pane<?= $acao == 'configuracao' ? $divAtivo : ''?>" id="configuracao">
         <?php
- //       require_once 'incs/sobremim/configuracao.php'
+       require_once 'incs/sobremim/configuracao.php'
 ?>
         </div>
 

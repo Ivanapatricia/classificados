@@ -18,10 +18,10 @@ $task =  $input->get( 'task', null, 'string' );
 
 
 
-$url =  JRoute::_( 'index.php?option=com_classificados&task=pessoaendereco.endereco&Itemid='.$itemid , false );
-$urlGravar =  JRoute::_( 'index.php?option=com_classificados&task=pessoaendereco.salvar&Itemid='.$itemid , false );
-$voltar = JRoute::_( 'index.php?option=com_classificados&task=pessoa.meusdados&t=endereco&Itemid='.$itemid , false );
-$urlCIdade = JRoute::_('http://localhost/joomla/index.php?option=com_classificados&task=pessoaendereco.cidade', false);
+$url =  JRoute::_( 'index.php?option=com_classificados&task=empresaendereco.endereco&Itemid='.$itemid , false );
+$urlGravar =  JRoute::_( 'index.php?option=com_classificados&task=empresaendereco.salvar&Itemid='.$itemid , false );
+$voltar = JRoute::_( 'index.php?option=com_classificados&task=empresa.meusdados&t=endereco&Itemid='.$itemid , false );
+$urlCIdade = JRoute::_('http://localhost/joomla/index.php?option=com_classificados&task=empresaendereco.cidade', false);
 
 if(strpos($urlCIdade, "?")>0){
     if(substr($urlCIdade, strlen($urlCIdade)-1)=="?"){
@@ -82,7 +82,7 @@ jQuery(document).ready(function(){
 ?>
 <form action="<?= $urlGravar ?>" method="post" enctype="application/x-www-form-urlencoded" class="form-validate form-horizontal">
 	<input type="hidden" name="option" value="com_classificados"/>
-	<input type="hidden" name="task" value="pessoaendereco.salvar"/>
+	<input type="hidden" name="task" value="empresaendereco.salvar"/>
 	<input type="hidden" name="id" value="<?= $id ?>"/>
     <input type="hidden" name="Itemid" value="<?= $itemid ?>"/>
    
@@ -90,18 +90,18 @@ jQuery(document).ready(function(){
 
 
     <fieldset>
-        <legend><?= JText::_('COM_CLASSIFICADOS_PESSOA_DADOS_PESSOAIS') ?></legend>
+        <legend><?= JText::_('COM_CLASSIFICADOS_EMPRESA_DADOS_EMPRESAIS') ?></legend>
         <div class="control-group">
-            <label class="control-label" for="cep"><?= JText::_('COM_CLASSIFICADOS_PESSOA_CEP') ?></label>
+            <label class="control-label" for="cep"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_CEP') ?></label>
             <div class="controls">
                 <input type="text" id="cep" name="cep" value="<?= $cep ?>"
                     required="required" maxlength="9" minlength="9" pattern="[0-9]{5}-[0-9]{3}"
-                    placeholder="<?= JText::_('COM_CLASSIFICADOS_PESSOA_CEP_PLACEHOLDER') ?>"/>
+                    placeholder="<?= JText::_('COM_CLASSIFICADOS_EMPRESA_CEP_PLACEHOLDER') ?>"/>
             </div>
         </div>
 
         <div class="control-group">
-            <label class="control-label" for="logradouro"><?= JText::_('COM_CLASSIFICADOS_PESSOA_LOGRADOURO_ENDERECO') ?></label>
+            <label class="control-label" for="logradouro"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_LOGRADOURO_ENDERECO') ?></label>
             <div class="controls">
 
                 <select name="logradouro" id="logradouro" required="required">
@@ -120,40 +120,40 @@ endif;
         </div>
 
         <div class="control-group">
-            <label class="control-label" for="endereco"><?= JText::_('COM_CLASSIFICADOS_PESSOA_ENDERECO') ?></label>
+            <label class="control-label" for="endereco"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_ENDERECO') ?></label>
             <div class="controls">
                 <input type="text" id="endereco" name="endereco" value="<?= $endereco ?>"
                     required="required" maxlength="250" minlength="8"  
-                    placeholder="<?= JText::_('COM_CLASSIFICADOS_PESSOA_ENDERECO_PLACEHOLDER') ?>"/>
+                    placeholder="<?= JText::_('COM_CLASSIFICADOS_EMPRESA_ENDERECO_PLACEHOLDER') ?>"/>
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="numero"><?= JText::_('COM_CLASSIFICADOS_PESSOA_NUMERO_ENDERECO') ?></label>
+            <label class="control-label" for="numero"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_NUMERO_ENDERECO') ?></label>
             <div class="controls">
                 <input type="text" id="numero" name="numero" value="<?= $numero ?>"
                     required="required" maxlength="20" minlength="1"  
-                    placeholder="<?= JText::_('COM_CLASSIFICADOS_PESSOA_NUMERO_ENDERECO_PLACEHOLDER') ?>"/>
+                    placeholder="<?= JText::_('COM_CLASSIFICADOS_EMPRESA_NUMERO_ENDERECO_PLACEHOLDER') ?>"/>
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="complemento"><?= JText::_('COM_CLASSIFICADOS_PESSOA_COMPLEMENTO_ENDERECO') ?></label>
+            <label class="control-label" for="complemento"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_COMPLEMENTO_ENDERECO') ?></label>
             <div class="controls">
                 <input type="text" id="complemento" name="complemento" value="<?= $complemento ?>"
                     maxlength="250"   
-                    placeholder="<?= JText::_('COM_CLASSIFICADOS_PESSOA_COMPLEMENTO_ENDERECO_PLACEHOLDER') ?>"/>
+                    placeholder="<?= JText::_('COM_CLASSIFICADOS_EMPRESA_COMPLEMENTO_ENDERECO_PLACEHOLDER') ?>"/>
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="bairro"><?= JText::_('COM_CLASSIFICADOS_PESSOA_BAIRRO_ENDERECO') ?></label>
+            <label class="control-label" for="bairro"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_BAIRRO_ENDERECO') ?></label>
             <div class="controls">
                 <input type="text" id="bairro" name="bairro" value="<?= $bairro ?>"
                     required="required" maxlength="250" minlength="3"  
-                    placeholder="<?= JText::_('COM_CLASSIFICADOS_PESSOA_BAIRRO_ENDERECO_PLACEHOLDER') ?>"/>
+                    placeholder="<?= JText::_('COM_CLASSIFICADOS_EMPRESA_BAIRRO_ENDERECO_PLACEHOLDER') ?>"/>
             </div>
         </div>
 
         <div class="control-group">
-            <label class="control-label" for="uf"><?= JText::_('COM_CLASSIFICADOS_PESSOA_UF_ENDERECO') ?></label>
+            <label class="control-label" for="uf"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_UF_ENDERECO') ?></label>
             <div class="controls">
 
                 <select name="uf" id="uf" required="required">
@@ -171,7 +171,7 @@ endif;
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="cidade"><?= JText::_('COM_CLASSIFICADOS_PESSOA_CIDADE_ENDERECO') ?></label>
+            <label class="control-label" for="cidade"><?= JText::_('COM_CLASSIFICADOS_EMPRESA_CIDADE_ENDERECO') ?></label>
             <div class="controls">
 
                 <select name="cidade" id="cidade" required="required">

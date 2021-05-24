@@ -22,13 +22,13 @@ use Joomla\CMS\Helper\SearchHelper;
  * @package  classificados
  * @since    1.0.0
  */
-class ClassificadosControllerPessoaEndereco extends BaseController
+class ClassificadosControllerEmpresaEndereco extends BaseController
 {
 
-	const TB_ENDERECOPESSOA = '`#__endereco_pessoa`';
+	const TB_ENDERECOEMPRESA = '`#__endereco_empresa`';
 
 	const TB_USERS = '`#__users`';
-	const TB_PESSOA = '`#__pessoa`';
+	const TB_EMPRESA = '`#__empresa`';
     const TB_CIDADE = '`#__cidade`';
     const TB_LOGRADOURO = '`#__logradouros`';
     const TB_UF = '`#__uf`';
@@ -60,17 +60,17 @@ class ClassificadosControllerPessoaEndereco extends BaseController
         $conditions = array(
             '  `id` = ' . $id       ,
             '  `status` = \'A\''        ,
-            '  `id_pessoa` = ' . $user->id
+            '  `id_empresa` = ' . $user->id
         );
         $query = $db->getQuery(true);
-        $query->update(ClassificadosControllerPessoaEndereco::TB_ENDERECOPESSOA)->set($fields)->where($conditions);
+        $query->update(ClassificadosControllerEmpresaEndereco::TB_ENDERECOEMPRESA)->set($fields)->where($conditions);
 
         $db->setQuery($query);
         $db->execute();
 
 
 
-        $app->redirect(JRoute::_( 'index.php?option=com_classificados&task=pessoa.meusdados&t=endereco&Itemid='.$itemid , false ), "");
+        $app->redirect(JRoute::_( 'index.php?option=com_classificados&task=empresa.meusdados&t=endereco&Itemid='.$itemid , false ), "");
     }
 
 
@@ -84,8 +84,8 @@ class ClassificadosControllerPessoaEndereco extends BaseController
         if($uf != null){
             $query = $db->getQuery ( true );
             $query->select(' `a`.`id`,`a`.`nome`, `a`.`capital` ')
-                ->from (ClassificadosControllerPessoaEndereco::TB_CIDADE . ' AS `a`' )
-                ->where( '`status` = ' . $db->quote(ClassificadosControllerPessoaEndereco::STATUS_ATIVO), 'AND')
+                ->from (ClassificadosControllerEmpresaEndereco::TB_CIDADE . ' AS `a`' )
+                ->where( '`status` = ' . $db->quote(ClassificadosControllerEmpresaEndereco::STATUS_ATIVO), 'AND')
                 ->where( '`uf` = ' . $db->quote($uf))
                 ->order( ' `a`.`capital` DESC, `a`.`nome` ' )
                 ->setLimit(1000);
@@ -109,17 +109,17 @@ class ClassificadosControllerPessoaEndereco extends BaseController
         $uf = $input->post->get('uf', null,'string');
 
         $query = $db->getQuery ( true );
-		$query->select(' `a`.`id`,`a`.`id_pessoa`,`a`.`endereco`,`a`.`numero`, `a`.`complemento`, `a`.`bairro`, `a`.`cep`, 
+		$query->select(' `a`.`id`,`a`.`id_empresa`,`a`.`endereco`,`a`.`numero`, `a`.`complemento`, `a`.`bairro`, `a`.`cep`, 
             `a`.`id_cidade`, `a`.`id_logradouro`, `c`.`uf`, 
             `a`.`status`,`a`.`id_user_criador`,
 			`a`.`ip_criador`,`a`.`ip_criador_proxiado`,`a`.`ip_alterador`,`a`.`ip_alterador_proxiado`,`a`.`id_user_alterador`,
 			`a`.`data_criado`,`a`.`data_alterado`,`b`.`name` AS `nomeAlterador` ')
-			->from (ClassificadosControllerPessoaEndereco::TB_ENDERECOPESSOA . ' AS `a`' )
-			->join ('LEFT', ClassificadosControllerPessoaEndereco::TB_USERS . ' AS `b` ON `a`.`id_user_alterador` = `b`.`id`')
-			->join ('LEFT', ClassificadosControllerPessoaEndereco::TB_CIDADE . ' AS `c` ON `a`.`id_cidade` = `c`.`id`')
-			->where( '`a`.`status` = ' . $db->quote(ClassificadosControllerPessoaEndereco::STATUS_ATIVO), 'AND')
+			->from (ClassificadosControllerEmpresaEndereco::TB_ENDERECOEMPRESA . ' AS `a`' )
+			->join ('LEFT', ClassificadosControllerEmpresaEndereco::TB_USERS . ' AS `b` ON `a`.`id_user_alterador` = `b`.`id`')
+			->join ('LEFT', ClassificadosControllerEmpresaEndereco::TB_CIDADE . ' AS `c` ON `a`.`id_cidade` = `c`.`id`')
+			->where( '`a`.`status` = ' . $db->quote(ClassificadosControllerEmpresaEndereco::STATUS_ATIVO), 'AND')
             ->where( '`a`.`id`  = ' . $db->quote($id))
-            ->where( '`a`.`id_pessoa`  = ' . $db->quote($user->id))
+            ->where( '`a`.`id_empresa`  = ' . $db->quote($user->id))
             ->setLimit(1);
 		$db->setQuery ( $query );
 		$endereco = $db->loadObject();
@@ -139,8 +139,8 @@ class ClassificadosControllerPessoaEndereco extends BaseController
 
             $query = $db->getQuery ( true );
             $query->select(' `id`,`nome`, `capital` , `uf` ')
-                ->from (ClassificadosControllerPessoaEndereco::TB_CIDADE  )
-                ->where( '`status` = ' . $db->quote(ClassificadosControllerPessoaEndereco::STATUS_ATIVO), 'AND')
+                ->from (ClassificadosControllerEmpresaEndereco::TB_CIDADE  )
+                ->where( '`status` = ' . $db->quote(ClassificadosControllerEmpresaEndereco::STATUS_ATIVO), 'AND')
                 ->where( '`uf` =' . $db->quote($endereco->uf))
                 ->order( ' `capital` DESC, `nome` ' )
                 ->setLimit(1000);
@@ -153,8 +153,8 @@ class ClassificadosControllerPessoaEndereco extends BaseController
 
             $query = $db->getQuery ( true );
             $query->select(' `id`,`nome`, `capital` , `uf` ')
-                ->from (ClassificadosControllerPessoaEndereco::TB_CIDADE  )
-                ->where( '`status` = ' . $db->quote(ClassificadosControllerPessoaEndereco::STATUS_ATIVO), 'AND')
+                ->from (ClassificadosControllerEmpresaEndereco::TB_CIDADE  )
+                ->where( '`status` = ' . $db->quote(ClassificadosControllerEmpresaEndereco::STATUS_ATIVO), 'AND')
                 ->where( '`uf` =' . $db->quote($uf))
                 ->order( ' `capital` DESC, `nome` ' )
                 ->setLimit(1000);
@@ -167,8 +167,8 @@ class ClassificadosControllerPessoaEndereco extends BaseController
 
         $query = $db->getQuery ( true );
         $query->select(' `a`.`id`,`a`.`nome` ')
-            ->from (ClassificadosControllerPessoaEndereco::TB_LOGRADOURO . ' AS `a`' )
-            ->where( '`a`.`status` = ' . $db->quote(ClassificadosControllerPessoaEndereco::STATUS_ATIVO))
+            ->from (ClassificadosControllerEmpresaEndereco::TB_LOGRADOURO . ' AS `a`' )
+            ->where( '`a`.`status` = ' . $db->quote(ClassificadosControllerEmpresaEndereco::STATUS_ATIVO))
             ->order( ' `a`.`nome` ' )
             ->setLimit(1000);
         $db->setQuery ( $query );
@@ -179,8 +179,8 @@ class ClassificadosControllerPessoaEndereco extends BaseController
 
         $query = $db->getQuery ( true );
         $query->select(' `a`.`uf`,`a`.`nome` ')
-            ->from (ClassificadosControllerPessoaEndereco::TB_UF . ' AS `a`' )
-            ->where( '`status` = ' . $db->quote(ClassificadosControllerPessoaEndereco::STATUS_ATIVO))
+            ->from (ClassificadosControllerEmpresaEndereco::TB_UF . ' AS `a`' )
+            ->where( '`status` = ' . $db->quote(ClassificadosControllerEmpresaEndereco::STATUS_ATIVO))
             ->order( ' `a`.`nome` ' )
             ->setLimit(1000);
         $db->setQuery ( $query );
@@ -194,7 +194,7 @@ class ClassificadosControllerPessoaEndereco extends BaseController
 		
 
 
-        $input->set('view', 'pessoa');
+        $input->set('view', 'empresa');
 		$input->set('layout',  'endereco');
 		parent::display (true);
     }
@@ -252,36 +252,36 @@ class ClassificadosControllerPessoaEndereco extends BaseController
 		}
 
 		if($endereco==null || trim($endereco) == '' || strlen($endereco) < 3){
-			JLog::add('Não enviou o endereco do pessoa', JLog::DEBUG, 'com-classificados-pessoaendereco');
-			$app->enqueueMessage(JText::_('COM_CLASSIFICADOS_PESSOA_ENDERECO_OBRIGATORIO'), 'error');
+			JLog::add('Não enviou o endereco do empresa', JLog::DEBUG, 'com-classificados-empresaendereco');
+			$app->enqueueMessage(JText::_('COM_CLASSIFICADOS_EMPRESA_ENDERECO_OBRIGATORIO'), 'error');
 			$isErro = true;
 		}
 
         if($numero==null || trim($numero) == '' || strlen($numero) < 3 ){
-            JLog::add('Não enviou o numero de endereco do pessoa', JLog::DEBUG, 'com-classificados-pessoaendereco');
-            $app->enqueueMessage(JText::_('COM_CLASSIFICADOS_PESSOA_NUMERO_ENDERECO_OBRIGATORIO'), 'error');
+            JLog::add('Não enviou o numero de endereco do empresa', JLog::DEBUG, 'com-classificados-empresaendereco');
+            $app->enqueueMessage(JText::_('COM_CLASSIFICADOS_EMPRESA_NUMERO_ENDERECO_OBRIGATORIO'), 'error');
             $isErro = true;
         }
 
 
         if($bairro==null || trim($bairro) == '' || strlen($bairro) < 3 ){
-            JLog::add('Não enviou o bairro de endereco do pessoa', JLog::DEBUG, 'com-classificados-pessoaendereco');
-            $app->enqueueMessage(JText::_('COM_CLASSIFICADOS_PESSOA_BAIRRO_ENDERECO_OBRIGATORIO'), 'error');
+            JLog::add('Não enviou o bairro de endereco do empresa', JLog::DEBUG, 'com-classificados-empresaendereco');
+            $app->enqueueMessage(JText::_('COM_CLASSIFICADOS_EMPRESA_BAIRRO_ENDERECO_OBRIGATORIO'), 'error');
             $isErro = true;
         }
 
         if($cep==null || trim($cep) == '' || strlen($cep) < 3 ){
-            JLog::add('Não enviou o numero de cep do pessoa', JLog::DEBUG, 'com-classificados-pessoaendereco');
-            $app->enqueueMessage(JText::_('COM_CLASSIFICADOS_PESSOA_CEP_ENDERECO_OBRIGATORIO'), 'error');
+            JLog::add('Não enviou o numero de cep do empresa', JLog::DEBUG, 'com-classificados-empresaendereco');
+            $app->enqueueMessage(JText::_('COM_CLASSIFICADOS_EMPRESA_CEP_ENDERECO_OBRIGATORIO'), 'error');
             $isErro = true;
         }
 
         
-        $exp = preg_match(ClassificadosControllerPessoaEndereco::REGEXP_CEP, $cep);
+        $exp = preg_match(ClassificadosControllerEmpresaEndereco::REGEXP_CEP, $cep);
 
         if($exp===false || $exp<=0) {
-			JLog::add('Enviou o cep inválido', JLog::DEBUG, 'com-classificados-pessoaemail');
-			$app->enqueueMessage(JText::_('COM_CLASSIFICADOS_PESSOA_CEP_INVALIDO'), 'error');
+			JLog::add('Enviou o cep inválido', JLog::DEBUG, 'com-classificados-empresaemail');
+			$app->enqueueMessage(JText::_('COM_CLASSIFICADOS_EMPRESA_CEP_INVALIDO'), 'error');
 			$isErro = true;
 
         }
@@ -311,10 +311,10 @@ class ClassificadosControllerPessoaEndereco extends BaseController
             $conditions = array(
                 '  `id` = ' . $id       ,
                 '  `status` = \'A\''        ,
-                '  `id_pessoa` = ' . $user->id
+                '  `id_empresa` = ' . $user->id
             );
 			$query = $db->getQuery(true);
-			$query->update(ClassificadosControllerPessoaEndereco::TB_ENDERECOPESSOA)->set($fields)->where($conditions);
+			$query->update(ClassificadosControllerEmpresaEndereco::TB_ENDERECOEMPRESA)->set($fields)->where($conditions);
 
 			$db->setQuery($query);
             $db->execute();
@@ -324,7 +324,7 @@ class ClassificadosControllerPessoaEndereco extends BaseController
             
 
 
-            $columns = array('endereco','numero', 'complemento', 'bairro','cep','id_cidade','id_logradouro', 'id_pessoa',
+            $columns = array('endereco','numero', 'complemento', 'bairro','cep','id_cidade','id_logradouro', 'id_empresa',
 			'status', 'id_user_criador', 'ip_criador', 'ip_criador_proxiado', 'data_criado');
             $values = array(
                 $db->quote($endereco),
@@ -336,14 +336,14 @@ class ClassificadosControllerPessoaEndereco extends BaseController
                 $db->quote($logradouro),
 
                 $db->quote($user->id), 
-                $db->quote(ClassificadosControllerPessoaEndereco::STATUS_ATIVO),
+                $db->quote(ClassificadosControllerEmpresaEndereco::STATUS_ATIVO),
                 $db->quote($user->id), 
                 $db->quote($_SERVER['REMOTE_ADDR']), 
                 $db->quote($_SERVER['HTTP_X_FORWARDED_FOR']), 
                 'NOW()');
             
             $query
-                ->insert(ClassificadosControllerPessoaEndereco::TB_ENDERECOPESSOA)
+                ->insert(ClassificadosControllerEmpresaEndereco::TB_ENDERECOEMPRESA)
                 ->columns($db->quoteName($columns))
                 ->values(implode(',', $values));
             $db->setQuery($query);
@@ -354,6 +354,6 @@ class ClassificadosControllerPessoaEndereco extends BaseController
 
 
 
-        $app->redirect(JRoute::_( 'index.php?option=com_classificados&task=pessoa.meusdados&t=endereco&Itemid='.$itemid , false ), "");
+        $app->redirect(JRoute::_( 'index.php?option=com_classificados&task=empresa.meusdados&t=endereco&Itemid='.$itemid , false ), "");
     }
 }

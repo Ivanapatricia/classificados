@@ -33,6 +33,8 @@ class ClassificadosControllerPessoa extends BaseController
 	const TB_TELEFONEPESSOA = '`#__telefone_pessoa`';
 	const TB_ENDERECOPESSOA = '`#__endereco_pessoa`';
 	const TB_USERS = '`#__users`';
+	const TB_CIDADE = '`#__cidade`';
+	const TB_LOGRADOURO = '`#__logradouros`';
 
 
 	const STATUS_ATIVO = 'A';
@@ -154,15 +156,22 @@ class ClassificadosControllerPessoa extends BaseController
 
 
 
+
+
+
 		$query = $db->getQuery ( true );
-		$query->select(' `a`.`id`,`a`.`id_pessoa`,`a`.`ddd`,`a`.`telefone`,`a`.`exibir`,`a`.`tipo`,`a`.`validado`,`a`.`status`,`a`.`id_user_criador`,
+		$query->select(' `a`.`id`,`a`.`id_pessoa`,`a`.`endereco`,`a`.`numero`, `a`.`complemento`, `a`.`bairro`, `a`.`cep`, 
+			`d`.`nome` AS cidade, `e`.`nome` AS logradouro,
+			`a`.`status`,`a`.`id_user_criador`,
 			`a`.`ip_criador`,`a`.`ip_criador_proxiado`,`a`.`ip_alterador`,`a`.`ip_alterador_proxiado`,`a`.`id_user_alterador`,
 			`a`.`data_criado`,`a`.`data_alterado`,`c`.`name` AS `nomeAlterador`, `b`.`name` AS `nomeCriador`   ')
 			->from (ClassificadosControllerPessoa::TB_ENDERECOPESSOA . ' AS `a`' )
 			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `b` ON `a`.`id_user_criador` = `b`.`id`')
 			->join ('LEFT', ClassificadosControllerPessoa::TB_USERS . ' AS `c` ON `a`.`id_user_alterador` = `c`.`id`')
-			->where( '`status` = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
-			->where( '`id_pessoa` = ' . $db->quote($user->id))
+			->join ('LEFT', ClassificadosControllerPessoa::TB_CIDADE . ' AS `d` ON `a`.`id_cidade` = `d`.`id`')
+			->join ('LEFT', ClassificadosControllerPessoa::TB_LOGRADOURO . ' AS `e` ON `a`.`id_logradouro` = `e`.`id`')
+			->where( '`a`.`status` = ' . $db->quote(ClassificadosControllerPessoa::STATUS_ATIVO), 'AND')
+			->where( '`a`.`id_pessoa` = ' . $db->quote($user->id))
 			->setLimit(100);
 		$db->setQuery ( $query );
 		$itens = $db->loadObjectList();
@@ -434,56 +443,5 @@ class ClassificadosControllerPessoa extends BaseController
 
 
 
-
-
-
-
-
-
-
-    public function salvarEmail(){
-		$this->getModel('classificados')->isLogado('pessoa.meusdados') || exit();
-		$db = JFactory::getDbo ();
-		$app = JFactory::getApplication();
-		$document = JFactory::getDocument();
-		$user = JFactory::getUser();
-
-        
-        $this->meusdados();
-    }
-
-    public function apagarEmail(){
-		$this->getModel('classificados')->isLogado('pessoa.meusdados') || exit();
-		$db = JFactory::getDbo ();
-		$app = JFactory::getApplication();
-		$document = JFactory::getDocument();
-		$user = JFactory::getUser();
-
-        
-        $this->meusdados();
-    }
-
-
-    public function salvarTelefone(){
-		$this->getModel('classificados')->isLogado('pessoa.meusdados') || exit();
-		$db = JFactory::getDbo ();
-		$app = JFactory::getApplication();
-		$document = JFactory::getDocument();
-		$user = JFactory::getUser();
-
-        
-        $this->meusdados();
-    }
-
-    public function apagarTelefone(){
-		$this->getModel('classificados')->isLogado('pessoa.meusdados') || exit();
-		$db = JFactory::getDbo ();
-		$app = JFactory::getApplication();
-		$document = JFactory::getDocument();
-		$user = JFactory::getUser();
-
-        
-        $this->meusdados();
-    }
 
 }
