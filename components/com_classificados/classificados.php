@@ -24,8 +24,8 @@ DEFINE('SELECTED', ' SELECTED');
 
 JHtml::_('bootstrap.framework');
 JHtml::_('jquery.framework');
-JHtml::_('jquery.ui');
-JHTML::_('behavior.tooltip');
+//JHtml::_('jquery.ui');
+//JHTML::_('behavior.tooltip');
 $doc = JFactory::getDocument();
 $doc->addScript(JURI::base() . 'media/com_classificados/js/jquery.mask.js?v='.VERSAO);
 

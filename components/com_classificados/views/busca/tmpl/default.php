@@ -19,8 +19,12 @@ $tipoProduto 	= $input->get('tipoProduto', null, 'string');
 $url_busca =  JRoute::_( 'index.php?option=com_classificados&task=busca.busca' . 
 	($ste != null && !empty($ste) ?  '&ste=' . $ste : '') . 
 	($stp != null && !empty($stp) ?  '&stp=' . $stp : '') .'&Itemid='.$itemid , false );
-if (JRequest::getVar( 'task' ) == null || JRequest::getVar ( 'task' ) == '') {
-	$app->redirect ($url_busca, "" );
+if ($input->get( 'task' ) == null || $input->get( 'task' ) == '') {
+	//$app->redirect($url_busca, "Carregando a busca" );
+	//$app->redirect($url_busca, "Carregando a busca" );
+	$controller = JControllerLegacy::getInstance("busca");
+	$controller->setRedirect($url_busca,JText::_(''),$type);
+	$controller->redirect();
 	exit ();
 }
 

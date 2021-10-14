@@ -995,7 +995,7 @@ CREATE TABLE IF NOT EXISTS `#__perfis_cla_tiproduto` (
 
 
 
-SELECT id INTO @IDUSUARIO FROM #__users limit 1;
+SELECT max(id) INTO @IDUSUARIO FROM #__users limit 1;
 SELECT SUBSTRING_INDEX(USER(), '@', -1) INTO @IPACESSO;
 
 
@@ -1005,8 +1005,9 @@ SELECT max(`ordering`) + 1 INTO @ORDEM FROM `#__viewlevels`;
 
 
 
-INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES 
-('Usuario Comum', @ORDEM, '[2]' );
+INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES  ('Usuario Comum', @ORDEM, '[2]' );
+
+-- # INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES  ('Usuario Lojista', @ORDEM, '[3]' );
 
 SELECT last_insert_id() INTO @ID;
 
